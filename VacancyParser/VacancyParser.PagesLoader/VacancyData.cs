@@ -9,8 +9,8 @@ namespace VacancyParser
     {
         public string Job { get; set; }
         public string Location { get; set; }
-        public double Salary { get; set; }
+        public string Salary { get; set; }
         public string Sector { get; set; }
-        public float Experiance { get; set; }
+        public string Experiance { get; set; }
     }
 }
