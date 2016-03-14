@@ -11,7 +11,13 @@ namespace VacancyParser.PagesLoader
         
         protected static TimeWaiter TimeWaiter;
         protected static bool IsInited;
-        public virtual string Link { get; }
+        public virtual string Link
+        {
+            get
+            {
+                return "";
+            }
+        }
         public virtual int WaitTime { get; set; }
 
         static PageLoader()
