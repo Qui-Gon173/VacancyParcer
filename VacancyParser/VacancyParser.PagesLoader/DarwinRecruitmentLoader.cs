@@ -36,10 +36,10 @@ namespace VacancyParser.PagesLoader
             TimeWaiter = new TimeWaiter();
         }
 
-        private void ParceVacancyList(string loadAction)
+        private void ParceVacancyList(string link)
         {
             var doc = new HtmlDocument();
-            doc.LoadHtml(LoadPage(Link));
+            doc.LoadHtml(LoadPage(link));
             var threadArray=doc.DocumentNode
                 .SelectNodes(".summary")
                 .Select(el => el.SelectSingleNode("h2")
@@ -56,11 +56,11 @@ namespace VacancyParser.PagesLoader
             }
         }
 
-        private void ParceVacancy(string loadAction)
+        private void ParceVacancy(string link)
         {
             var result = new VacancyData();
             var doc = new HtmlDocument();
-            doc.LoadHtml(LoadPage(Link));
+            doc.LoadHtml(LoadPage(link));
             result.Job = doc.DocumentNode
                 .SelectSingleNode(".content")
                 .SelectSingleNode("h1")
@@ -99,7 +99,7 @@ namespace VacancyParser.PagesLoader
             if (vacancyCount % 100 != 0)
                 pagesCount++;
             var threads = new Thread[vacancyCount];
-            for(var i=0;i<6;i++)
+            for (var i = 0; i < pagesCount; i++)
             {
                 var link=new StringBuilder(Link);
                 link.AppendFormat("?pagesize=100&page={0}",i+1);

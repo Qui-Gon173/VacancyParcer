@@ -8,10 +8,16 @@ namespace VacancyParser.PagesLoader
 {
     public abstract class PageLoader
     {
+        
         protected static TimeWaiter TimeWaiter;
         protected static bool IsInited;
         public virtual string Link { get; }
         public virtual int WaitTime { get; set; }
+
+        static PageLoader()
+        {
+            TimeWaiter = new TimeWaiter();
+        }
 
         protected string LoadPage(string link, Dictionary<string, string> args = null)
         {

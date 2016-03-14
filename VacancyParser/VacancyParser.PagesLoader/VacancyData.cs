@@ -12,5 +12,6 @@ namespace VacancyParser
         public string Salary { get; set; }
         public string Sector { get; set; }
         public string Experiance { get; set; }
+        public string Skils { get; set; }
     }
 }
