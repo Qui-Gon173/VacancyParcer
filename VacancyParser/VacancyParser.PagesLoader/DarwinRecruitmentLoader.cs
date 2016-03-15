@@ -27,7 +27,7 @@ namespace VacancyParser.PagesLoader
         {
             get
             {
-                return domain+@"http://www.darwinrecruitment.com/jobs/job-search-results/";
+                return domain+@"/jobs/job-search-results/";
             }
         }
 
@@ -41,10 +41,9 @@ namespace VacancyParser.PagesLoader
             var doc = new HtmlDocument();
             doc.LoadHtml(LoadPage(link));
             var threadArray=doc.DocumentNode
-                .SelectNodes(".summary")
-                .Select(el => el.SelectSingleNode("h2")
-                    .SelectSingleNode("a")
-                    .GetAttributeValue("href",""))
+                .SelectNodes("//*[contains(@class,'summary')]")
+                .Select(el => el.SelectSingleNode("h2/a")
+                    .GetAttributeValue("href", ""))
                 .Where(el=>!string.IsNullOrEmpty(el))
                 .Select(el=> new Thread(()=>ParceVacancy(domain+el)))
                 .ToArray();
@@ -61,23 +60,23 @@ namespace VacancyParser.PagesLoader
             var result = new VacancyData();
             var doc = new HtmlDocument();
             doc.LoadHtml(LoadPage(link));
-            result.Job = doc.DocumentNode
-                .SelectSingleNode(".content")
-                .SelectSingleNode("h1")
-                .InnerText;
-                
-            var dlContent=doc.DocumentNode
-                .SelectSingleNode(".job-header")
-                .SelectSingleNode("dl")
-                .ChildNodes;
             
-            for(var i=0;i<dlContent.Count;i+=2)
+            result.Job = doc.DocumentNode
+                .SelectSingleNode("//*[contains(@class,'content')]/h1")
+                .InnerText;
+
+            var dlContent = doc.DocumentNode
+                .SelectSingleNode("//*[contains(@class,'job-header')]/dl")
+                .SelectNodes("dt|dd");
+            var deviders = new[] { ' ', ':', '\t', '\r', '\n' };
+            for (var i = 0; i < dlContent.Count; i += 2)
             {
-                switch(dlContent[i].InnerText.Trim(' ',':','\t'))
+                var InnerText = RemoveDeviders(dlContent[i].InnerText, deviders);
+                switch (InnerText)
                 {
-                    case "Location:": result.Location = dlContent[i + 1].InnerText.Trim(' ', ':', '\t'); break;
-                    case "Salary": result.Salary=dlContent[i+1].InnerText.Trim(' ',':','\t'); break;
-                    case "Sector": result.Sector=dlContent[i+1].InnerText.Trim(' ',':','\t'); break;
+                    case "Location": result.Location = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
+                    case "Salary": result.Salary = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
+                    case "Sector": result.Sector = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
                 }
             }
             lock (_loadedData)
@@ -90,9 +89,7 @@ namespace VacancyParser.PagesLoader
                 return;
             var doc = new HtmlDocument();
             doc.LoadHtml(LoadPage(Link));
-            var strCount = doc.DocumentNode.SelectSingleNode(".results-count")
-                .ChildNodes
-                .Single(el => el.Name == "strong")
+            var strCount = doc.DocumentNode.SelectSingleNode("//*[contains(@class,'results-count')]/strong")
                 .InnerText;
             var vacancyCount =int.Parse(strCount);
             var pagesCount = vacancyCount / 100;

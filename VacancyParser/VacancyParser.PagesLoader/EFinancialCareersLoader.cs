@@ -34,7 +34,7 @@ namespace VacancyParser.PagesLoader
             var doc = new HtmlDocument();
             doc.LoadHtml(LoadPage(link));
             var threadArray = doc.DocumentNode
-                .SelectNodes(".jobPreview>h2>a")
+                .SelectNodes("//*[contains(@class,'jobPreview')]/h2/a")
                 .Select(el => el.GetAttributeValue("href", ""))
                 .Where(el => !string.IsNullOrEmpty(el))
                 .Select(el => new Thread(() => ParceVacancy(el)))
@@ -54,19 +54,20 @@ namespace VacancyParser.PagesLoader
             doc.LoadHtml(LoadPage(link));
 
             result.Job = doc.DocumentNode
-                .SelectSingleNode(".well>h1")
+                .SelectSingleNode("//*[contains(@class,'well')]/h1")
                 .InnerText;
 
             var liContent = doc.DocumentNode
-                .SelectNodes("ul.details>li");
+                .SelectNodes("//ul[contains(@class,'details')]/li");
+            var deviders = new[] { ' ', ':', '\t','\r','\n' };
 
             for (var i = 0; i < liContent.Count; i++)
             {
                 var span=liContent[i].SelectSingleNode("span");
                 switch (liContent[i].GetAttributeValue("class",""))
                 {
-                    case "salary:": result.Salary = span.InnerText.Trim(' ', ':', '\t'); break;
-                    case "location:": result.Location = span.InnerText.Trim(' ', ':', '\t'); break;
+                    case "salary": result.Salary = RemoveDeviders(span.InnerText,deviders); break;
+                    case "location": result.Location = RemoveDeviders(span.InnerText,deviders); break;
                 }
             }
             lock (_loadedData)
@@ -79,7 +80,7 @@ namespace VacancyParser.PagesLoader
                 return;
             var doc = new HtmlDocument();
             doc.LoadHtml(LoadPage(Link));
-            var textVacancyCount = doc.DocumentNode.SelectNodes(".pagination>.pageItem")
+            var textVacancyCount = doc.DocumentNode.SelectNodes("//*[contains(@class,'pagination')]/*[contains(@class,'pageItem')]")
                 .Last()
                 .InnerText;
             var pageCount = int.Parse(textVacancyCount);

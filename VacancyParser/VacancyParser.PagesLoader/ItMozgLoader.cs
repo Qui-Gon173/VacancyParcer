@@ -34,7 +34,7 @@ namespace VacancyParser.PagesLoader
             var doc = new HtmlDocument();
             doc.LoadHtml(LoadPage(link));
             var threadArray = doc.DocumentNode
-                .SelectNodes(".vac>a.vacancy")
+                .SelectNodes("//*[contains(@class,'vac')]/a[contains(@class,'vacancy')]")
                 .Select(el => new { 
                     href = el.GetAttributeValue("href", ""), 
                     title = el.SelectSingleNode("span").InnerText.Trim() 
@@ -61,25 +61,25 @@ namespace VacancyParser.PagesLoader
             var experiance = "Описание работы";
 
             var text = doc.DocumentNode
-                .SelectSingleNode(".listing-body>.fleft")
+                .SelectSingleNode("//*[contains(@class,'listing-body')]/*[contains(@class,'fleft')]")
                 .InnerText;
             var start = text.IndexOf(spesiality) + spesiality.Length;
-            result.Skils = text.Substring(start, text.IndexOf(experiance) - start);
+            result.Skils = text.Substring(start, text.IndexOf(experiance) - start).Trim(':', '\t', '\n', '\r');
 
             var tableContent = doc.DocumentNode
-                .SelectSingleNode(".listing-summary");
-            var header=tableContent.SelectSingleNode("thead").SelectSingleNode("tr").ChildNodes;
-            var tbody = tableContent.SelectSingleNode("tbody").SelectSingleNode("tr").ChildNodes;
+                .SelectSingleNode("//*[contains(@class,'listing-summary')]");
+            var header = tableContent.SelectNodes("thead/tr/td");
+            var tbody = tableContent.SelectNodes("tbody/tr/td");
             if (header.Count != tbody.Count)
                 return;
-
-            for (var i = 0; i < header.Count; i ++)
+            var deviders = new[] { ' ', ':', '\t' };
+            for (var i = 0; i < header.Count; i++)
             {
-                switch (header[i].InnerText.Trim(' ', ':', '\t'))
+                switch (RemoveDeviders(header[i].InnerText, deviders).Trim())
                 {
-                    case "Доход:": result.Salary = tbody[i].InnerText.Trim(' ', ':', '\t'); break;
-                    case "Город:": result.Location = tbody[i].InnerText.Trim(' ', ':', '\t'); break;
-                    case "Требуемый опыт работы": result.Experiance = tbody[i].InnerText.Trim(' ', ':', '\t'); break;
+                    case "Доход": result.Salary = RemoveDeviders(tbody[i].InnerText, deviders); break;
+                    case "Город": result.Location = RemoveDeviders(tbody[i].InnerText, deviders); break;
+                    case "Требуемый опыт работы": result.Experiance = RemoveDeviders(tbody[i].InnerText, deviders); break;
                 }
             }
             lock (_loadedData)
@@ -92,8 +92,9 @@ namespace VacancyParser.PagesLoader
                 return;
             var doc = new HtmlDocument();
             doc.LoadHtml(LoadPage(Link));
-            var strCount = doc.DocumentNode.SelectSingleNode(".title_vacancy")
-                .SelectSingleNode(".context>.context")
+            var strCount = doc.DocumentNode
+                .SelectSingleNode("//h2[contains(@class,'title_vacancy')]")
+                .SelectSingleNode("//*[contains(@class,'context')]/*[contains(@class,'context')]")
                 .InnerText;
             var vacancyCount =int.Parse(strCount);
             var pagesCount = vacancyCount / 20;

@@ -25,19 +25,26 @@ namespace VacancyParser.PagesLoader
             TimeWaiter = new TimeWaiter();
         }
 
-        protected string LoadPage(string link, Dictionary<string, string> args = null)
+        protected string LoadPage(string link)
         {
             string page;
             using (var client = new WebClient())
             {
-                if (args != null)
-                    foreach (var pair in args)
-                        client.QueryString.Add(pair.Key, pair.Value);
+                client.Encoding = Encoding.UTF8;
                 TimeWaiter.Wait();
                 page = client.DownloadString(link);
             }
             return page;
         }
+
+        protected static string RemoveDeviders(string str,params char[] deviders)
+        {
+            var res = str;
+            foreach(var ch in deviders)
+                res=res.Replace(ch.ToString(),"");
+            return res;
+        }
+
         public abstract void Init();
         public abstract VacancyData[] GetVacancy();
     }
