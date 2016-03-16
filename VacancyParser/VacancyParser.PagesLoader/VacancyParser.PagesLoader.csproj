@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="DarwinRecruitmentLoader.cs" />
     <Compile Include="EFinancialCareersLoader.cs" />
+    <Compile Include="ILogger.cs" />
     <Compile Include="ItMozgLoader.cs" />
     <Compile Include="PageLoader.cs" />
     <Compile Include="TimeWaiter.cs" />
