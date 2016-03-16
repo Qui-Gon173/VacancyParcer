@@ -11,16 +11,17 @@ namespace VacancyParser.PagesLoader
     public class ItMozgLoader : PageLoader
     {
 
-        private static DarwinRecruitmentLoader _instance;
+        private static ItMozgLoader _instance;
 
-        public static DarwinRecruitmentLoader Instance
+        public static ItMozgLoader Instance
         {
             get
             {
-                return _instance ?? (_instance = new DarwinRecruitmentLoader());
+                return _instance ?? (_instance = new ItMozgLoader());
             }
         }
 
+        protected ItMozgLoader() : base() { }
         public override string Link
         {
             get
@@ -56,6 +57,8 @@ namespace VacancyParser.PagesLoader
                 {
                     Thread.Sleep(WaitTime * 2);
                 }
+                if (Logger != null)
+                    Logger.Info("List loaded:{0}", link);
             }
             catch (WebException e)
             {
@@ -111,6 +114,8 @@ namespace VacancyParser.PagesLoader
                 }
                 lock (_loadedData)
                     _loadedData.Enqueue(result);
+                if (Logger != null)
+                    Logger.Info("Loaded:{0}", link);
             }
             catch (WebException e)
             {

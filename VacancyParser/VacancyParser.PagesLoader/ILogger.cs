@@ -13,5 +13,7 @@ namespace VacancyParser.PagesLoader
         void Debug(string format, params object[] args);
         void Error(string info);
         void Error(string format, params object[] args);
+
+        void ForceSave();
     }
 }

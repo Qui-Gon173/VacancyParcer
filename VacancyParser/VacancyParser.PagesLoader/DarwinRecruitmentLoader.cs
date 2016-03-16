@@ -30,7 +30,7 @@ namespace VacancyParser.PagesLoader
                 return domain + @"/jobs/job-search-results/";
             }
         }
-
+        protected DarwinRecruitmentLoader() : base() { }
         private void ParceVacancyList(string link, int _try = 0)
         {
             if (_try > 5)
@@ -55,6 +55,8 @@ namespace VacancyParser.PagesLoader
                 {
                     Thread.Sleep(WaitTime * 2);
                 }
+                if (Logger != null)
+                    Logger.Info("List loaded:{0}", link);
             }
             catch (WebException e)
             {
@@ -102,6 +104,8 @@ namespace VacancyParser.PagesLoader
                 }
                 lock (_loadedData)
                     _loadedData.Enqueue(result);
+                if (Logger != null)
+                    Logger.Info("Loaded:{0}", link);
             }
             catch (WebException e)
             {

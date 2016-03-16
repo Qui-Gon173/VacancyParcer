@@ -28,6 +28,8 @@ namespace VacancyParser.PagesLoader
             }
         }
 
+        protected EFinancialCareersLoader() : base() { }
+
         private void ParceVacancyList(string link, int _try = 0)
         {
             if (_try > 5)
@@ -51,6 +53,8 @@ namespace VacancyParser.PagesLoader
                 {
                     Thread.Sleep(WaitTime * 2);
                 }
+                if (Logger != null)
+                    Logger.Info("List loaded:{0}", link);
             }
             catch (WebException e)
             {
@@ -97,6 +101,8 @@ namespace VacancyParser.PagesLoader
                 }
                 lock (_loadedData)
                     _loadedData.Enqueue(result);
+                if (Logger != null)
+                    Logger.Info("Loaded:{0}", link);
             }
             catch (WebException e)
             {
@@ -119,7 +125,7 @@ namespace VacancyParser.PagesLoader
                     return;
                 var doc = new HtmlDocument();
                 doc.LoadHtml(LoadPage(Link));
-                var textVacancyCount = doc.DocumentNode.SelectNodes("//*[contains(@class,'pagination')]/*[contains(@class,'pageItem')]")
+                var textVacancyCount = doc.DocumentNode.SelectNodes("//*[contains(@class,'pagination')]//a[contains(@class,'pageItem')]")
                     .Last()
                     .InnerText;
                 var pageCount = int.Parse(textVacancyCount);

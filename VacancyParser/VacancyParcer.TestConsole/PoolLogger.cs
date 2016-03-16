@@ -69,6 +69,7 @@ namespace VacancyParcer.TestConsole
             }
             lock(_saveLock)
                 queue.Enqueue(new InputData { Message = message, Date = DateTime.Now });
+            Console.WriteLine("{2}|{0:G}|{1}", DateTime.Now, message,type);
         }
 
         public void Debug(string info)
@@ -99,6 +100,12 @@ namespace VacancyParcer.TestConsole
         public void Info(string format, params object[] args)
         {
             AddEvent(MessageType.Info, string.Format(format, args));
+        }
+
+
+        public void ForceSave()
+        {
+            _saveTimer_Elapsed(null, null);
         }
     }
 }
