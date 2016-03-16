@@ -10,6 +10,17 @@ namespace VacancyParser.PagesLoader
 {
     public class ItMozgLoader : PageLoader
     {
+
+        private static DarwinRecruitmentLoader _instance;
+
+        public static DarwinRecruitmentLoader Instance
+        {
+            get
+            {
+                return _instance ?? (_instance = new DarwinRecruitmentLoader());
+            }
+        }
+
         public override string Link
         {
             get

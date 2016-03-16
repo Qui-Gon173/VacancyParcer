@@ -10,6 +10,17 @@ namespace VacancyParser.PagesLoader
 {
     public class DarwinRecruitmentLoader : PageLoader
     {
+
+        private static DarwinRecruitmentLoader _instance;
+
+        public static DarwinRecruitmentLoader Instance
+        {
+            get
+            {
+                return _instance ?? (_instance = new DarwinRecruitmentLoader());
+            }
+        }
+
         private const string domain = @"http://www.darwinrecruitment.com";
 
         public override string Link
@@ -18,11 +29,6 @@ namespace VacancyParser.PagesLoader
             {
                 return domain + @"/jobs/job-search-results/";
             }
-        }
-
-        static DarwinRecruitmentLoader()
-        {
-            TimeWaiter = new TimeWaiter();
         }
 
         private void ParceVacancyList(string link, int _try = 0)

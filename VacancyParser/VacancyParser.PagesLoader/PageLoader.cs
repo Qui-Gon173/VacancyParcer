@@ -8,10 +8,11 @@ namespace VacancyParser.PagesLoader
 {
     public abstract class PageLoader
     {
-        protected static Queue<VacancyData> _loadedData = new Queue<VacancyData>();
-        protected static TimeWaiter TimeWaiter;
-        protected static bool IsInited;
-        public static ILogger Logger { get; set;}
+        protected Queue<VacancyData> _loadedData = new Queue<VacancyData>();
+        protected TimeWaiter TimeWaiter = new TimeWaiter();
+        protected bool IsInited;
+
+        public ILogger Logger { get; set;}
 
         public virtual string Link
         {
@@ -20,6 +21,8 @@ namespace VacancyParser.PagesLoader
                 return "";
             }
         }
+
+        protected PageLoader() { }
 
         public int WaitTime
         {
@@ -31,11 +34,6 @@ namespace VacancyParser.PagesLoader
             {
                 TimeWaiter.TimeToWaitInMs = value;
             }
-        }
-
-        static PageLoader()
-        {
-            TimeWaiter = new TimeWaiter();
         }
 
         protected string LoadPage(string link)

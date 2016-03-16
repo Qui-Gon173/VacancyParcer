@@ -10,6 +10,16 @@ namespace VacancyParser.PagesLoader
 {
     public class EFinancialCareersLoader : PageLoader
     {
+        private static EFinancialCareersLoader _instance;
+
+        public static EFinancialCareersLoader Instance
+        {
+            get
+            {
+                return _instance ?? (_instance = new EFinancialCareersLoader());
+            }
+        }
+
         public override string Link
         {
             get
