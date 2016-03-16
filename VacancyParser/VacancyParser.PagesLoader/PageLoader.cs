@@ -48,7 +48,7 @@ namespace VacancyParser.PagesLoader
             return page;
         }
 
-        protected static string RemoveDeviders(string str,params char[] deviders)
+        public static string RemoveDeviders(string str,params char[] deviders)
         {
             var res = str;
             foreach(var ch in deviders)

@@ -52,7 +52,33 @@ namespace VacancyParcer.TestConsole
 
         static void Main(string[] args)
         {
-            
+            var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
+            VacancyData[] vacancy;
+            var deviders = new[] { '\t', '\r', '\n' };
+            using (var reader = new System.IO.StreamReader("i_data.txt"))
+            {
+                vacancy = (VacancyData[])serial.Deserialize(reader);
+            }
+            foreach (var x in vacancy)
+            {
+                if (x.Job != null)
+                    x.Job = PageLoader.RemoveDeviders(x.Job, deviders).Trim();
+                if (x.Location != null)
+                    x.Location = PageLoader.RemoveDeviders(x.Location, deviders).Trim();
+                if (x.Salary != null)
+                    x.Salary = PageLoader.RemoveDeviders(x.Salary, deviders).Trim();
+                if (x.Sector != null)
+                    x.Sector = PageLoader.RemoveDeviders(x.Sector,deviders).Trim();
+                if (x.Skils != null)
+                    x.Skils = PageLoader.RemoveDeviders(x.Skils, deviders).Trim();
+                if (x.Experiance != null)
+                    x.Experiance = PageLoader.RemoveDeviders(x.Experiance, deviders).Trim();
+            }
+            using (var writer = new System.IO.StreamWriter("i_data_fix.txt"))
+            {
+                serial.Serialize(writer, vacancy);
+            }
+
         }
     }
 }
