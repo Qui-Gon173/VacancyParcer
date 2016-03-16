@@ -8,9 +8,11 @@ namespace VacancyParser.PagesLoader
 {
     public abstract class PageLoader
     {
-        
+        protected static Queue<VacancyData> _loadedData = new Queue<VacancyData>();
         protected static TimeWaiter TimeWaiter;
         protected static bool IsInited;
+        public static ILogger Logger { get; set;}
+
         public virtual string Link
         {
             get
@@ -18,7 +20,18 @@ namespace VacancyParser.PagesLoader
                 return "";
             }
         }
-        public virtual int WaitTime { get; set; }
+
+        public int WaitTime
+        {
+            get
+            {
+                return TimeWaiter.TimeToWaitInMs;
+            }
+            set
+            {
+                TimeWaiter.TimeToWaitInMs = value;
+            }
+        }
 
         static PageLoader()
         {
@@ -46,6 +59,9 @@ namespace VacancyParser.PagesLoader
         }
 
         public abstract void Init();
-        public abstract VacancyData[] GetVacancy();
+        public VacancyData[] GetVacancy()
+        {
+            return _loadedData.ToArray();
+        }
     }
 }

@@ -8,26 +8,15 @@ using System.Threading;
 
 namespace VacancyParser.PagesLoader
 {
-    public class DarwinRecruitmentLoader:PageLoader
+    public class DarwinRecruitmentLoader : PageLoader
     {
-        private Queue<VacancyData> _loadedData = new Queue<VacancyData>();
         private const string domain = @"http://www.darwinrecruitment.com";
-        public override int WaitTime
-        {
-            get
-            {
-                return TimeWaiter.TimeToWaitInMs;
-            }
-            set
-            {
-                TimeWaiter.TimeToWaitInMs = value;
-            }
-        }
+
         public override string Link
         {
             get
             {
-                return domain+@"/jobs/job-search-results/";
+                return domain + @"/jobs/job-search-results/";
             }
         }
 
@@ -36,83 +25,124 @@ namespace VacancyParser.PagesLoader
             TimeWaiter = new TimeWaiter();
         }
 
-        private void ParceVacancyList(string link)
+        private void ParceVacancyList(string link, int _try = 0)
         {
-            var doc = new HtmlDocument();
-            doc.LoadHtml(LoadPage(link));
-            var threadArray=doc.DocumentNode
-                .SelectNodes("//*[contains(@class,'summary')]")
-                .Select(el => el.SelectSingleNode("h2/a")
-                    .GetAttributeValue("href", ""))
-                .Where(el=>!string.IsNullOrEmpty(el))
-                .Select(el=> new Thread(()=>ParceVacancy(domain+el)))
-                .ToArray();
-            foreach (var el in threadArray)
-                el.Start();
-            while(threadArray.Any(el=>el.IsAlive))
+            if (_try > 5)
             {
-                Thread.Sleep(WaitTime * 2);
+                if (Logger != null)
+                    Logger.Debug("Can't load this link:{0}", link);
+            }
+            try
+            {
+                var doc = new HtmlDocument();
+                doc.LoadHtml(LoadPage(link));
+                var threadArray = doc.DocumentNode
+                    .SelectNodes("//*[contains(@class,'summary')]")
+                    .Select(el => el.SelectSingleNode("h2/a")
+                        .GetAttributeValue("href", ""))
+                    .Where(el => !string.IsNullOrEmpty(el))
+                    .Select(el => new Thread(() => ParceVacancy(domain + el)))
+                    .ToArray();
+                foreach (var el in threadArray)
+                    el.Start();
+                while (threadArray.Any(el => el.IsAlive))
+                {
+                    Thread.Sleep(WaitTime * 2);
+                }
+            }
+            catch (WebException e)
+            {
+                if (Logger != null)
+                    Logger.Error("{0}){1}:\n{2}\n\n", _try, link, e);
+                ParceVacancyList(link, _try++);
+            }
+            catch (Exception e)
+            {
+                if (Logger != null)
+                    Logger.Error("Another exception in {0}\n{1}\n\n", link, e);
             }
         }
 
-        private void ParceVacancy(string link)
+        private void ParceVacancy(string link, int _try = 0)
         {
-            var result = new VacancyData();
-            var doc = new HtmlDocument();
-            doc.LoadHtml(LoadPage(link));
-            
-            result.Job = doc.DocumentNode
-                .SelectSingleNode("//*[contains(@class,'content')]/h1")
-                .InnerText;
-
-            var dlContent = doc.DocumentNode
-                .SelectSingleNode("//*[contains(@class,'job-header')]/dl")
-                .SelectNodes("dt|dd");
-            var deviders = new[] { ' ', ':', '\t', '\r', '\n' };
-            for (var i = 0; i < dlContent.Count; i += 2)
+            if (_try > 5)
             {
-                var InnerText = RemoveDeviders(dlContent[i].InnerText, deviders);
-                switch (InnerText)
-                {
-                    case "Location": result.Location = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
-                    case "Salary": result.Salary = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
-                    case "Sector": result.Sector = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
-                }
+                if (Logger != null)
+                    Logger.Debug("Can't load this link:{0}", link);
             }
-            lock (_loadedData)
-                _loadedData.Enqueue(result);
+            try
+            {
+                var result = new VacancyData();
+                var doc = new HtmlDocument();
+                doc.LoadHtml(LoadPage(link));
+
+                result.Job = doc.DocumentNode
+                    .SelectSingleNode("//*[contains(@class,'content')]/h1")
+                    .InnerText;
+
+                var dlContent = doc.DocumentNode
+                    .SelectSingleNode("//*[contains(@class,'job-header')]/dl")
+                    .SelectNodes("dt|dd");
+                var deviders = new[] { ' ', ':', '\t', '\r', '\n' };
+                for (var i = 0; i < dlContent.Count; i += 2)
+                {
+                    var InnerText = RemoveDeviders(dlContent[i].InnerText, deviders);
+                    switch (InnerText)
+                    {
+                        case "Location": result.Location = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
+                        case "Salary": result.Salary = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
+                        case "Sector": result.Sector = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
+                    }
+                }
+                lock (_loadedData)
+                    _loadedData.Enqueue(result);
+            }
+            catch (WebException e)
+            {
+                if (Logger != null)
+                    Logger.Error("{0}){1}:\n{2}\n\n", _try, link, e);
+                ParceVacancy(link, _try++);
+            }
+            catch (Exception e)
+            {
+                if (Logger != null)
+                    Logger.Error("Another exception in {0}\n{1}\n\n", link, e);
+            }
         }
 
         public override void Init()
         {
-            if (IsInited)
-                return;
-            var doc = new HtmlDocument();
-            doc.LoadHtml(LoadPage(Link));
-            var strCount = doc.DocumentNode.SelectSingleNode("//*[contains(@class,'results-count')]/strong")
-                .InnerText;
-            var vacancyCount =int.Parse(strCount);
-            var pagesCount = vacancyCount / 100;
-            if (vacancyCount % 100 != 0)
-                pagesCount++;
-            var threads = new Thread[vacancyCount];
-            for (var i = 0; i < pagesCount; i++)
+            try
             {
-                var link=new StringBuilder(Link);
-                link.AppendFormat("?pagesize=100&page={0}",i+1);
-                threads[i] = new Thread(()=>ParceVacancyList(link.ToString()));
-                threads[i].Start();
+                if (IsInited)
+                    return;
+                var doc = new HtmlDocument();
+                doc.LoadHtml(LoadPage(Link));
+                var strCount = doc.DocumentNode.SelectSingleNode("//*[contains(@class,'results-count')]/strong")
+                    .InnerText;
+                var vacancyCount = int.Parse(strCount);
+                var pagesCount = vacancyCount / 100;
+                if (vacancyCount % 100 != 0)
+                    pagesCount++;
+                var threads = new Thread[vacancyCount];
+                for (var i = 0; i < pagesCount; i++)
+                {
+                    var link = new StringBuilder(Link);
+                    link.AppendFormat("?pagesize=100&page={0}", i + 1);
+                    threads[i] = new Thread(() => ParceVacancyList(link.ToString()));
+                    threads[i].Start();
+                }
+                while (threads.Any(el => el.IsAlive))
+                {
+                    Thread.Sleep(WaitTime * 3);
+                }
+                IsInited = true;
             }
-            while (threads.Any(el => el.IsAlive))
+            catch (Exception e)
             {
-                Thread.Sleep(WaitTime*3);
+                if (Logger != null)
+                    Logger.Error("Another exception {0}\n\n", e);
             }
-            IsInited = true;
-        }
-
-        public override VacancyData[] GetVacancy()
-        {
-            return _loadedData.ToArray();
         }
     }
 }
