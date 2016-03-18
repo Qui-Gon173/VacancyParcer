@@ -97,13 +97,15 @@ namespace VacancyParcer.TestConsole
                     allVacancy.AddRange(vacancy);
                 }
 
-            string[] analitics = { "analyst", "risk", "аналитик" };
-            string[] testers = { "тест", "delivery", "qa", "test", "validat", "тестировщик" };
-            string[] develop = { "программист", "develop", "сопровожден", "бэкенд", "engineer", "java", "technology", "software", "разработчик" };
-            string[] designer = { "model", "художник", "иллюстратор", "аниматор", "арт", "дизайнер" };
-            string[] admin = { "электромонтажник", "сервис", "техни", "network", "админ" };
-            string[] manager = { "manager", "support", "консультант", " маркетолог", "копирайтер", "наборщик", "consultant", "менеджер" };
-            string[] seo = { "seo", "smm" };
+            /*
+            var r=new Random();
+            foreach (var el in allVacancy)
+                el.Salary = (r.Next(30, 180)*1000).ToString();
+
+            using (var writer = new StreamWriter("allData.txt"))
+            {
+                serial.Serialize(writer,allVacancy.ToArray());
+            }*/
 
             /*
             var r=new Random();
@@ -114,6 +116,16 @@ namespace VacancyParcer.TestConsole
             {
                 serial.Serialize(writer,allVacancy.ToArray());
             }*/
+
+            string[] analitics = { "analyst", "risk", "аналитик" };
+            string[] testers = { "тест", "delivery", "qa", "test", "validat", "тестировщик" };
+            string[] develop = { "программист", "develop", "сопровожден", "бэкенд", "engineer", "java", "technology", "software", "разработчик" };
+            string[] designer = { "model", "художник", "иллюстратор", "аниматор", "арт", "дизайнер" };
+            string[] admin = { "электромонтажник", "сервис", "техни", "network", "админ" };
+            string[] manager = { "manager", "support", "консультант", " маркетолог", "копирайтер", "наборщик", "consultant", "менеджер" };
+            string[] seo = { "seo", "smm" };
+
+            
 
             var kazanVacancy = Els(allVacancy
                 .Where(el => el.Location.ToLower().Contains("казань") || el.Location.ToLower().Contains("kazan"))
@@ -141,6 +153,11 @@ namespace VacancyParcer.TestConsole
                     && int.Parse(el.Salary) > 110000)
                 .ToArray());
 
+            var salary = allVacancy.GroupBy(el=>el.Location).OrderByDescending(el=>el.Count()).ToArray();
+            foreach (var x in salary)
+            {
+                Console.WriteLine("{0} {1}", x.Key, x.Count());
+            }
             Console.ReadKey();
 
         }
