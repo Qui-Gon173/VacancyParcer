@@ -24,15 +24,21 @@ namespace VacancyParcer.TestConsole
 
         static void LoadVacancy()
         {
+            if (!Directory.Exists("d/"))
+                Directory.CreateDirectory("d/");
+            if (!Directory.Exists("e/"))
+                Directory.CreateDirectory("e/");
+            if (!Directory.Exists("i/"))
+                Directory.CreateDirectory("i/");
             PageLoader dloader = DarwinRecruitmentLoader.Instance;
             PageLoader eloader = EFinancialCareersLoader.Instance;
             PageLoader iloader = ItMozgLoader.Instance;
-            dloader.Logger = new PoolLogger("d_debug.txt", "d_info.txt", "d_error.txt");
-            eloader.Logger = new PoolLogger("e_debug.txt", "e_info.txt", "e_error.txt");
-            iloader.Logger = new PoolLogger("i_debug.txt", "i_info.txt", "i_error.txt");
+            dloader.Logger = new PoolLogger("d/d_debug.txt", "d/d_info.txt", "d/d_error.txt");
+            eloader.Logger = new PoolLogger("e/e_debug.txt", "e/e_info.txt", "e/e_error.txt");
+            iloader.Logger = new PoolLogger("i/i_debug.txt", "i/i_info.txt", "i/i_error.txt");
 
             dloader.WaitTime = 400;
-            eloader.WaitTime = 450;
+            eloader.WaitTime = 300;
             iloader.WaitTime = 350;
 
             var threadAr = new System.Threading.Thread[]{
@@ -44,8 +50,10 @@ namespace VacancyParcer.TestConsole
             foreach (var el in threadAr)
                 el.Start();
 
-            while (threadAr.Any(el => el.IsAlive))
+            while (threadAr.Any(el => el.IsAlive)) {
+                int t1, t2;
                 System.Threading.Thread.Sleep(10000);
+        }
             dloader.Logger.ForceSave();
             eloader.Logger.ForceSave();
             iloader.Logger.ForceSave();
@@ -86,7 +94,8 @@ namespace VacancyParcer.TestConsole
 
         static void Main(string[] args)
         {
-            var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
+            LoadVacancy();
+            /*var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
             var allVacancy = new List<VacancyData>();
 
             foreach (var file in new[] { "allData.txt" })
@@ -95,37 +104,7 @@ namespace VacancyParcer.TestConsole
                     VacancyData[] vacancy;
                     vacancy = (VacancyData[])serial.Deserialize(reader);
                     allVacancy.AddRange(vacancy);
-                }
-
-            /*
-            var r=new Random();
-            foreach (var el in allVacancy)
-                el.Salary = (r.Next(30, 180)*1000).ToString();
-
-            using (var writer = new StreamWriter("allData.txt"))
-            {
-                serial.Serialize(writer,allVacancy.ToArray());
-            }*/
-
-            /*
-            var r=new Random();
-            foreach (var el in allVacancy)
-                el.Experiance = r.Next(0, 6).ToString();
-
-            using (var writer = new StreamWriter("allData.txt"))
-            {
-                serial.Serialize(writer,allVacancy.ToArray());
-            }*/
-
-            string[] analitics = { "analyst", "risk", "аналитик" };
-            string[] testers = { "тест", "delivery", "qa", "test", "validat", "тестировщик" };
-            string[] develop = { "программист", "develop", "сопровожден", "бэкенд", "engineer", "java", "technology", "software", "разработчик" };
-            string[] designer = { "model", "художник", "иллюстратор", "аниматор", "арт", "дизайнер" };
-            string[] admin = { "электромонтажник", "сервис", "техни", "network", "админ" };
-            string[] manager = { "manager", "support", "консультант", " маркетолог", "копирайтер", "наборщик", "consultant", "менеджер" };
-            string[] seo = { "seo", "smm" };
-
-            
+                }            
 
             var kazanVacancy = Els(allVacancy
                 .Where(el => el.Location.ToLower().Contains("казань") || el.Location.ToLower().Contains("kazan"))
@@ -157,7 +136,7 @@ namespace VacancyParcer.TestConsole
             foreach (var x in salary)
             {
                 Console.WriteLine("{0} {1}", x.Key, x.Count());
-            }
+            }*/
             Console.ReadKey();
 
         }

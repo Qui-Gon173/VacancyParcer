@@ -95,8 +95,8 @@ namespace VacancyParser.PagesLoader
                     var span = liContent[i].SelectSingleNode("span");
                     switch (liContent[i].GetAttributeValue("class", ""))
                     {
-                        case "salary": result.Salary = RemoveDeviders(span.InnerText, deviders); break;
-                        case "location": result.Location = RemoveDeviders(span.InnerText, deviders); break;
+                        case "salary": result.Salary = span.InnerHtml; break;
+                        case "location": result.Location = span.InnerHtml; break;
                     }
                 }
                 lock (_loadedData)

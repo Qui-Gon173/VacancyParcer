@@ -97,9 +97,9 @@ namespace VacancyParser.PagesLoader
                     var InnerText = RemoveDeviders(dlContent[i].InnerText, deviders);
                     switch (InnerText)
                     {
-                        case "Location": result.Location = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
-                        case "Salary": result.Salary = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
-                        case "Sector": result.Sector = RemoveDeviders(dlContent[i + 1].InnerText, deviders); break;
+                        case "Location": result.Location = dlContent[i + 1].InnerHtml; break;
+                        case "Salary": result.Salary = dlContent[i + 1].InnerHtml; break;
+                        case "Sector": result.Sector = dlContent[i + 1].InnerHtml; break;
                     }
                 }
                 lock (_loadedData)

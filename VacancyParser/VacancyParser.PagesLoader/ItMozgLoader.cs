@@ -107,9 +107,9 @@ namespace VacancyParser.PagesLoader
                 {
                     switch (RemoveDeviders(header[i].InnerText, deviders).Trim())
                     {
-                        case "Доход": result.Salary = RemoveDeviders(tbody[i].InnerText, deviders); break;
-                        case "Город": result.Location = RemoveDeviders(tbody[i].InnerText, deviders); break;
-                        case "Требуемый опыт работы": result.Experiance = RemoveDeviders(tbody[i].InnerText, deviders); break;
+                        case "Доход": result.Salary = tbody[i].InnerHtml; break;
+                        case "Город": result.Location = tbody[i].InnerHtml; break;
+                        case "Требуемый опыт работы": result.Experiance = tbody[i].InnerHtml; break;
                     }
                 }
                 lock (_loadedData)
