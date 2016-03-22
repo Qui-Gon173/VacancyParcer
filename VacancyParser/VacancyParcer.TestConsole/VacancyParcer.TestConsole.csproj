@@ -47,6 +47,7 @@
     <Compile Include="PoolLogger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SalaryParser.cs" />
     <Compile Include="Trash.cs" />
   </ItemGroup>
   <ItemGroup>

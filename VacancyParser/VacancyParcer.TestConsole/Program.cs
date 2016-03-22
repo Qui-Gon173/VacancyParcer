@@ -94,18 +94,30 @@ namespace VacancyParcer.TestConsole
 
         static void Main(string[] args)
         {
-            LoadVacancy();
-            /*var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
+            var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
             var allVacancy = new List<VacancyData>();
 
-            foreach (var file in new[] { "allData.txt" })
+            foreach (var file in new[] { "e_data.txt", "i_data.txt", "d_data.txt" })
                 using (var reader = new StreamReader(file))
                 {
                     VacancyData[] vacancy;
                     vacancy = (VacancyData[])serial.Deserialize(reader);
                     allVacancy.AddRange(vacancy);
-                }            
+                }
+            var salaries=allVacancy
+                .Select(el => el.Salary.ToLower().Replace(",", "").Trim())
+                .Where(el => el.Any(sub => sub >= '0' && sub <= '9') && !el.Contains("по договоренности")
+                    && !el.Contains("competitive (2 to 3 years experience)"))
+                .OrderBy(el => el)
+                .ToArray();
 
+            File.Delete("salariesDebug.txt");
+            for (var i = 0; i < salaries.Length;i++ )
+            {
+                Console.WriteLine("{2}.{0}\n {1}\n\n",salaries[i], SalaryParser.GetValue(salaries[i]),i);
+                File.AppendAllText("salariesDebug.txt", string.Format("{0}\n {1}\n\n", salaries[i], SalaryParser.GetValue(salaries[i])));
+            }
+            /*
             var kazanVacancy = Els(allVacancy
                 .Where(el => el.Location.ToLower().Contains("казань") || el.Location.ToLower().Contains("kazan"))
                 .ToArray());
@@ -137,6 +149,7 @@ namespace VacancyParcer.TestConsole
             {
                 Console.WriteLine("{0} {1}", x.Key, x.Count());
             }*/
+            Console.WriteLine("Finish!");
             Console.ReadKey();
 
         }
