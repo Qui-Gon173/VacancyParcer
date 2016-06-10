@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using VacancyParser.PagesLoader;
+using System.Xml.Linq;
 
 namespace VacancyParcer.TestConsole
 {
@@ -148,7 +149,7 @@ namespace VacancyParcer.TestConsole
 
         static void Main(string[] args)
         {
-            var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
+            /*var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
             var allVacancy = new List<VacancyData>();
 
 
@@ -182,6 +183,40 @@ namespace VacancyParcer.TestConsole
                     whiter.WriteLine("{0:MMMM yyyy};{1};", group.Key, group.Count());
                 }
                 whiter.WriteLine();
+            }*/
+           
+            var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
+            VacancyData[] data;
+            using (var reader = 
+                new StreamReader(@"D:\Work\Custom\VacancyParcer\VacancyParser\VacancyParcer.TestConsole\bin\Debug\i_data_new.txt"))
+                data = (VacancyData[])serial.Deserialize(reader);
+
+            //"—"
+            /*foreach (var el in data)
+            {
+                el.Location = XElement.Parse(el.Location).Value;
+                el.Salary = XElement.Parse(el.Salary)
+                    .Value
+                    .Replace("руб.", "")
+                    .Replace(" ", "")
+                    .Trim();
+                el.Experiance = XElement.Parse(el.Experiance).Value;
+                var tecn = el.Skils
+                    .Trim()
+                    .Replace("\r", "")
+                    .Replace("\n", "")
+                    .Replace("\t", "");
+                while(tecn.Contains("  "))
+                    tecn=tecn.Replace("  ", " ");
+                el.Skils = tecn;
+            }*/
+            using(var writer=new StreamWriter("Jobs.csv",false,Encoding.UTF8))
+            {
+                var forInput = data.SelectMany(el => el.Job.ToLower()
+                    .Split(new[] { ':', ' ', ',','/' }, StringSplitOptions.RemoveEmptyEntries))
+                    .GroupBy(el=>el).OrderByDescending(el=>el.Count()).ToArray();
+                foreach (var el in forInput)
+                    writer.WriteLine("{0};", el.Key);
             }
 
         }

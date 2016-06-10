@@ -25,9 +25,9 @@ namespace VacancyParcer.TestConsole
         public string InfoFile { get; private set; }
         public string ErrorFile { get; private set; }
 
-        private Queue<InputData> _debugQueue = new Queue<InputData>();
-        private Queue<InputData> _infoQueue = new Queue<InputData>();
-        private Queue<InputData> _errorQueue = new Queue<InputData>();
+        private List<InputData> _debugList = new List<InputData>();
+        private List<InputData> _infoList = new List<InputData>();
+        private List<InputData> _errorList = new List<InputData>();
 
         private Timer _saveTimer = new Timer(10000);
 
@@ -41,34 +41,35 @@ namespace VacancyParcer.TestConsole
             _saveTimer.Elapsed += _saveTimer_Elapsed;
             _saveTimer.Start();
         }
-        
-        private void SaveLog(Queue<InputData> queue,string file)
+
+        private void SaveLog(List<InputData> logList, string file)
         {
             lock (_saveLock)
             {
-                var debugData = queue.Select(el => string.Format("{0:G}|{1}", el.Date, el.Message));
+                var debugData = logList.Select(el => string.Format("{0:G}|{1}", el.Date, el.Message));
                 System.IO.File.AppendAllLines(file, debugData);
+                logList.Clear();
             }
         }
 
         private void _saveTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            SaveLog(_debugQueue, DebugFile);
-            SaveLog(_infoQueue, InfoFile);
-            SaveLog(_errorQueue, ErrorFile);
+            SaveLog(_debugList, DebugFile);
+            SaveLog(_infoList, InfoFile);
+            SaveLog(_errorList, ErrorFile);
         }
 
         private void AddEvent(MessageType type,string message)
         {
-            Queue<InputData> queue=null;
+            List<InputData> logList = null;
             switch(type)
             {
-                case MessageType.Debug:queue = _debugQueue;break;
-                case MessageType.Info: queue = _infoQueue; break;
-                case MessageType.Error: queue = _errorQueue; break;
+                case MessageType.Debug:logList = _debugList;break;
+                case MessageType.Info: logList = _infoList; break;
+                case MessageType.Error: logList = _errorList; break;
             }
             lock(_saveLock)
-                queue.Enqueue(new InputData { Message = message, Date = DateTime.Now });
+                logList.Add(new InputData { Message = message, Date = DateTime.Now });
             Console.WriteLine("{2}|{0:G}|{1}", DateTime.Now, message,type);
         }
 

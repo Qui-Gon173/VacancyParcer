@@ -45,9 +45,9 @@ namespace VacancyParser.PagesLoader
                     .SelectNodes("//*[contains(@class,'vacancies_item')]")
                     .Select(el => new
                     {
-                        href = el.SelectSingleNode("//a[contains(@class,'vacancy')]").GetAttributeValue("href", ""),
-                        title = el.SelectSingleNode("//a[contains(@class,'vacancy')]/span").InnerText.Trim(),
-                        time = el.SelectSingleNode("//nobr").InnerText
+                        href = el.SelectSingleNode(".//a[contains(@class,'vacancy')]").GetAttributeValue("href", ""),
+                        title = el.SelectSingleNode(".//a[contains(@class,'vacancy')]/span").InnerText.Trim(),
+                        time = el.SelectSingleNode(".//nobr").InnerText
                     })
                     .Where(el => !string.IsNullOrEmpty(el.href) && !string.IsNullOrEmpty(el.title))
                     .Select(el => new Thread(() => ParceVacancy(el.href, el.title,el.time)))
@@ -65,7 +65,7 @@ namespace VacancyParser.PagesLoader
             {
                 if (Logger != null)
                     Logger.Error("{0}){1}:\n{2}\n\n", _try, link, e);
-                ParceVacancyList(link, _try++);
+                ParceVacancyList(link, _try+1);
             }
             catch (Exception e)
             {
@@ -111,7 +111,7 @@ namespace VacancyParser.PagesLoader
                     {
                         case "Доход": result.Salary = tbody[i].InnerHtml; break;
                         case "Город": result.Location = tbody[i].InnerHtml; break;
-                        case "Требуемый опыт работы": result.Experiance = tbody[i].InnerHtml; break;
+                        case "Требуемыйопытработы": result.Experiance = tbody[i].InnerHtml; break;
                     }
                 }
                 lock (_loadedData)
@@ -123,7 +123,7 @@ namespace VacancyParser.PagesLoader
             {
                 if (Logger != null)
                     Logger.Error("{0}){1}:\n{2}\n\n", _try, link, e);
-                ParceVacancy(link, title,date, _try++);
+                ParceVacancy(link, title,date, _try+1);
             }
             catch (Exception e)
             {
