@@ -13,5 +13,6 @@ namespace VacancyParser.PagesLoader
         public string Sector { get; set; }
         public string Experiance { get; set; }
         public string Skils { get; set; }
+        public string Date { get; set; }
     }
 }

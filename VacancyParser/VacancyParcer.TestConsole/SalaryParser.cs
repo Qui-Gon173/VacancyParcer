@@ -118,6 +118,9 @@ namespace VacancyParcer.TestConsole
                 {
                     builder.Append(replaceTo[index]);
                     index++;
+                    if (index + 1 < replaceTo.Length && replaceTo[index] == ' ' 
+                        && isValueelement(replaceTo[index+1]))
+                        index++;
                 }
                 nums.Add(builder.ToString());
                 if (replaceTo.Substring(index).Contains("-") && nums.Count <= 1)

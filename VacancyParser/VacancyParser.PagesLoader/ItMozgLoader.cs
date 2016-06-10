@@ -30,7 +30,7 @@ namespace VacancyParser.PagesLoader
             }
         }
 
-        private void ParceVacancyList(string link, int _try = 0)
+        public void ParceVacancyList(string link, int _try = 0)
         {
             if (_try > 5)
             {
@@ -42,14 +42,15 @@ namespace VacancyParser.PagesLoader
                 var doc = new HtmlDocument();
                 doc.LoadHtml(LoadPage(link));
                 var threadArray = doc.DocumentNode
-                    .SelectNodes("//*[contains(@class,'vac')]/a[contains(@class,'vacancy')]")
+                    .SelectNodes("//*[contains(@class,'vacancies_item')]")
                     .Select(el => new
                     {
-                        href = el.GetAttributeValue("href", ""),
-                        title = el.SelectSingleNode("span").InnerText.Trim()
+                        href = el.SelectSingleNode("//a[contains(@class,'vacancy')]").GetAttributeValue("href", ""),
+                        title = el.SelectSingleNode("//a[contains(@class,'vacancy')]/span").InnerText.Trim(),
+                        time = el.SelectSingleNode("//nobr").InnerText
                     })
                     .Where(el => !string.IsNullOrEmpty(el.href) && !string.IsNullOrEmpty(el.title))
-                    .Select(el => new Thread(() => ParceVacancy(el.href, el.title)))
+                    .Select(el => new Thread(() => ParceVacancy(el.href, el.title,el.time)))
                     .ToArray();
                 foreach (var el in threadArray)
                     el.Start();
@@ -73,7 +74,7 @@ namespace VacancyParser.PagesLoader
             }
         }
 
-        private void ParceVacancy(string link, string title, int _try = 0)
+        private void ParceVacancy(string link, string title,string date, int _try = 0)
         {
             if (_try > 5)
             {
@@ -86,6 +87,7 @@ namespace VacancyParser.PagesLoader
                 var doc = new HtmlDocument();
                 doc.LoadHtml(LoadPage(link));
                 result.Job = title;
+                result.Date = date;
 
                 var spesiality = "Специализация";
                 var experiance = "Описание работы";
@@ -121,7 +123,7 @@ namespace VacancyParser.PagesLoader
             {
                 if (Logger != null)
                     Logger.Error("{0}){1}:\n{2}\n\n", _try, link, e);
-                ParceVacancy(link, title, _try++);
+                ParceVacancy(link, title,date, _try++);
             }
             catch (Exception e)
             {

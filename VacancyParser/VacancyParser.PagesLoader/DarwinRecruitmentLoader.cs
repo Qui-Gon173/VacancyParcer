@@ -57,6 +57,15 @@ namespace VacancyParser.PagesLoader
                 }
                 if (Logger != null)
                     Logger.Info("List loaded:{0}", link);
+
+                var job = doc.DocumentNode
+               .SelectSingleNode("//*[contains(@class,'content')]/h1")
+                    .InnerText;
+
+                var dlContent = doc.DocumentNode
+                                .SelectSingleNode("//*[contains(@class,'job-header')]/dl")
+                                .SelectNodes("dt|dd");
+
             }
             catch (WebException e)
             {

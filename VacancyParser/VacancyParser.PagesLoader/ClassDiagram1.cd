@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="VacancyParser.PagesLoader.DarwinRecruitmentLoader">
+    <Position X="3" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAAAAACCAAAAAAAAAAAARAACQAAAAAA=</HashCode>
+      <FileName>DarwinRecruitmentLoader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VacancyParser.PagesLoader.EFinancialCareersLoader">
+    <Position X="6.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAAAAACAAAAAAAAAAAAARAACQAAAAAA=</HashCode>
+      <FileName>EFinancialCareersLoader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VacancyParser.PagesLoader.ItMozgLoader">
+    <Position X="4.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAAAAACAAAAAAAAAAAAARAACQAAAAAA=</HashCode>
+      <FileName>ItMozgLoader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VacancyParser.PagesLoader.PageLoader" Collapsed="true">
+    <Position X="4.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAEACAAAAYAAAgAAAAAAAAAEAAAAgAAAAACQAAAAAA=</HashCode>
+      <FileName>PageLoader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VacancyParser.PagesLoader.TimeWaiter" Collapsed="true">
+    <Position X="9.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAAAAAAAIAAAAAAAQAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>TimeWaiter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VacancyParser.PagesLoader.VacancyData" Collapsed="true">
+    <Position X="11.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAACAAAAAAAAAIABAAAAAACCAAAAAAAAAAAAAA=</HashCode>
+      <FileName>VacancyData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="VacancyParser.PagesLoader.ILogger" Collapsed="true">
+    <Position X="9.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEAYAAAAAAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>ILogger.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
