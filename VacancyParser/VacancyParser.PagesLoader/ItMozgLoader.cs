@@ -54,7 +54,7 @@ namespace VacancyParser.PagesLoader
                     .ToArray();
                 foreach (var el in threadArray)
                     el.Start();
-                while (threadArray.Any(el => el.IsAlive))
+                while (threadArray.Any(el => el!=null && el.IsAlive))
                 {
                     Thread.Sleep(WaitTime * 2);
                 }
@@ -156,7 +156,7 @@ namespace VacancyParser.PagesLoader
                     threads[i] = new Thread(() => ParceVacancyList(link.ToString()));
                     threads[i].Start();
                 }
-                while (threads.Any(el => el.IsAlive))
+                while (threads.Any(el => el!=null&&el.IsAlive))
                 {
                     Thread.Sleep(WaitTime * 3);
                 }

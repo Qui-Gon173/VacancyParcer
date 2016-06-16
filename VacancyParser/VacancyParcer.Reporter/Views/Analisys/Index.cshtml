@@ -1,0 +1,242 @@
+﻿@model AnalisisViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Отчет лингвистического резюмирования</h2>
+<h3>Кластеризация по атрибутам</h3>
+
+<div class="cluster_chart" data-json="@Model.TotalJsonData">
+
+</div>
+<div>
+    <p>Обозначения, использованные на графике</p>
+    <ul>
+        <li>Низкий – меньше 35 т.р.</li>
+        <li>Ниже среднего – от 35 до 55 т.р.</li>
+        <li>Средний – от 55 до 90 т.р.</li>
+        <li>Выше среднего – от 90 до 125 т.р.</li>
+        <li>Высокий – выше 125 т.р.</li>
+    </ul>
+</div>
+<div>
+    <p>Информация об общем резюмировании, количестве объектов и распределении представлена таблицe</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th colspan="@(Model.TotalInfo.Info.Count+1)">Общее количество данных:@Model.TotalInfo.FullCount</th>
+            </tr>
+            <tr>
+                <th colspan="@(Model.TotalInfo.Info.Count+1)">Данные используемые при кластеризации:@(Model.TotalInfo.Count) (где указано значение з\п)</th>
+            </tr>
+            <tr>
+                <th>Кластер</th>
+                @foreach (var key in Model.TotalInfo.Info.Keys)
+                {
+                    <th>@key</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Количество</td>
+                @foreach (var val in Model.TotalInfo.Info.Select(el => el.Value.Count))
+                {
+                    <td>@val</td>
+                }
+            </tr>
+            <tr>
+                <td>Процент среди рассматриваемых</td>
+                @foreach (var val in Model.TotalInfo.Info.Select(el => el.Value.Pers))
+                {
+                    <td>@val</td>
+                }
+            </tr>
+            <tr>
+                <td>Процент среди всех значений</td>
+                @foreach (var val in Model.TotalInfo.Info.Select(el => el.Value.FullPers))
+                {
+                    <td>@val</td>
+                }
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Характеристика кластеров уровней зарплаты</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Кластер</th>
+                <th>Минимум</th>
+                <th>Максимум</th>
+                <th>Среднее</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var el in Model.TotalInfo.Info)
+            {
+                <tr>
+                    <td>
+                        @el.Key
+                    </td>
+                    <td>
+                        @el.Value.Min
+                    </td>
+                    <td>
+                        @el.Value.Max
+                    </td>
+                    <td>
+                        @el.Value.Average
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@foreach(var x in Model.TotalInfo.Info.Keys)
+{
+    <div>
+        <p>
+            Для кластера «@(x)», для него максимальный уровень зарплаты равен @(Model.TotalInfo.Info[x].Max), минимальный @(Model.TotalInfo.Info[x].Min), средний @(Model.TotalInfo.Info[x].Average).
+        </p>
+        <div class="cluster_chart" data-json="@Model.JsonData[x]">
+
+        </div>
+        <p>Характеристика кластерa «@(x)»</p>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th colspan="@(Model.SubInfo[x].Info.Count+1)">Общее количество данных:@Model.SubInfo[x].FullCount</th>
+                </tr>
+                <tr>
+                    <th colspan="@(Model.SubInfo[x].Info.Count + 1)">Данные используемые при кластеризации:@(Model.SubInfo[x].Count) (в кластере «@(x)»)</th>
+                </tr>
+                <tr>
+                    <th>Кластер</th>
+                    @foreach (var key in Model.SubInfo[x].Info.Keys)
+                    {
+                        <td>@key</td>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Количество</td>
+                    @foreach (var val in Model.SubInfo[x].Info.Select(el => el.Value.Count))
+                    {
+                        <td>@val</td>
+                    }
+                </tr>
+                <tr>
+                    <td>Процент среди рассматриваемых</td>
+                    @foreach (var val in Model.SubInfo[x].Info.Select(el => el.Value.Pers))
+                    {
+                        <td>@val</td>
+                    }
+                </tr>
+                <tr>
+                    <td>Процент среди всех значений</td>
+                    @foreach (var val in Model.SubInfo[x].Info.Select(el => el.Value.FullPers))
+                    {
+                        <td>@val</td>
+                    }
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+
+<h3>Пространственная кластеризация по технологии «Х»</h3>
+@foreach(var pair in Model.SpaceClusterData)
+{
+    <p>Для кластера «@(pair.Key)» диаграмма имеет следующий вид</p>
+    <div class="space_chart" data-json="@pair.Value">
+
+    </div>
+}
+
+<h3>Темпоральная кластеризация по технологии «Х»</h3>
+@foreach (var pair in Model.TimeClusterData)
+{
+    <p>Для кластера «@(pair.Key)» график имеет следующий вид</p>
+    <div class="time_chart" data-json="@pair.Value">
+
+    </div>
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.cluster_chart').each(function (i) {
+            var data = $(this).data('json');
+            var s = i > 0 ? 'Технологии' : 'Уровень зарплаты';
+
+            c3.generate({
+                bindto: this,
+                data: {
+                    columns: [[s].concat(
+                        data.map(function (val) {
+                            return val.data;
+                        })
+                    )],
+                    type: 'bar',
+                    labels: true,
+                },
+                bar: {
+                    width: {
+                        ratio: 0.6
+                    }
+                },
+                axis: {
+                    x: {
+                        type: 'category',
+                        categories: data.map(function (val) {
+                            return val.key;
+                        })
+                    }
+                }
+            });
+        });
+
+        $('.space_chart').each(function () {
+            var data = $(this).data('json');
+
+            c3.generate({
+                bindto: this,
+                data:{
+                    columns: data.chartData.map(function (el, i) { return [el.key,el.data]}),
+                    type: 'donut',
+                    labels: true,
+                }
+            });
+        });
+
+        $('.time_chart').each(function () {
+            var data = $(this).data('json');
+            var chartType={};
+            chartType[data.name] = 'area-spline';
+            var timeKeys = data.chartData.map(function (el) { return new Date(el.key + 'Z'); });
+            var timeValues = data.chartData.map(function (el) { return el.data; });
+            c3.generate({
+                bindto: this,
+                data: {
+                    x: 'x',
+                    columns: [
+                        ['x'].concat(timeKeys),
+                        [data.name].concat(timeValues),
+                    ],
+                    types: chartType,
+                    labels: true
+                },
+                axis: {
+                    x: {
+                        type: 'timeseries',
+                        tick: {
+                            fit: false,
+                            format: "%B %Y"
+                        }
+                    }
+                }
+            })
+        });
+    });
+</script>

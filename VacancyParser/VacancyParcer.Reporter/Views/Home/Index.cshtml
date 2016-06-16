@@ -1,0 +1,56 @@
+﻿@model VacancyParcer.Reporter.Models.PaginationList<VacancyParser.PagesLoader.VacancyData>
+@{
+    ViewBag.Title = "Главная";
+}
+<h2>Исходные необработанные данные</h2>
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Профессия
+                </th>
+                <th>
+                    Местоположение(Город)
+                </th>
+                <th>
+                    Зарплата
+                </th>
+                <th>
+                    Опыт
+                </th>
+                <th>
+                    Скилы
+                </th>
+                <th>
+                    Дата записи
+                </th>
+            </tr>
+        </thead>
+        @foreach (var el in Model)
+        {
+            <tr>
+                <td>
+                    @el.Job
+                </td>
+                <td>
+                    @el.Location
+                </td>
+                <td>
+                    @el.Salary
+                </td>
+                <td>
+                    @el.Experiance
+                </td>
+                <td>
+                    @el.Skils
+                </td>
+                <td>
+                    @el.Date
+                </td>
+            </tr>
+        }
+    </table>
+    @Html.Pagination(Url,Model)
+</div>

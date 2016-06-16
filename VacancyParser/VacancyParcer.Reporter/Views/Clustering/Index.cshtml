@@ -1,0 +1,105 @@
+﻿@model ClusterViewModel
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+@Html.ActionLink("Download", "DownloadPage","Home",new {page=Url.Action("Index","Clustering",null,Request.Url.Scheme) },new {@class="btn btn-primary"})
+
+<div id="attibutes" data-json="@Model.Attributes">
+
+</div>
+<div id="objects" data-json="@Model.Objects">
+
+</div>
+<div id="time" data-json="@Model.Time">
+
+</div>
+<script type="text/javascript">
+    $().ready(function () {
+        var attrJson = $("#attibutes").data("json");
+        attrData = {};
+        attrData.columns = [];
+        attrData.xs = {};
+        attrData.type = 'scatter';
+        attrJson.forEach(function (item) {
+            attrData.xs[item.key] = item.key + '_x';
+            var x = [item.key + "_x"];
+            var y = [item.key];
+            item.data.forEach(function (el) {
+                x.push(el[0]);
+                y.push(el[1]);
+            });
+            attrData.columns.push(x, y);
+        });
+        
+
+        c3.generate({
+            bindto: '#attibutes',
+            data: attrData,
+            axis:{
+                x: {
+                    tick: {
+                        fit: false,
+                    }
+                }
+            }
+        });
+
+        var objectsJson = $("#objects").data("json");
+        c3.generate({
+            bindto: '#objects',
+            data: {
+                columns: [['Города'].concat(
+                    objectsJson.map(function (val) {
+                        return val.data;
+                    })
+                )],
+                type: 'bar',
+                labels: true,
+            },
+            bar: {
+                width: {
+                    ratio: 0.6
+                }
+            },
+            axis: {
+                x: {
+                    type: 'category',
+                    categories: objectsJson.map(function (val) {
+                        return val.key;
+                    })
+                }
+            }
+        });
+
+
+        var timeJson = $("#time").data("json");
+        var timeKeys = timeJson.map(function (el) { return new Date(el.key+'Z'); });
+        var timeValues = timeJson.map(function (el) { return el.data; });
+        c3.generate({
+            bindto:'#time',
+            data: {
+                x: 'x',
+                columns: [
+                    ['x'].concat(timeKeys),
+                    ['Данные'].concat(timeValues),
+                ],
+                types: {
+                    'Данные': 'area-spline'
+                },
+                labels:true
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        fit: false,
+                        format: "%B %Y"
+                    }
+                }
+            }
+        })
+
+    });
+</script>

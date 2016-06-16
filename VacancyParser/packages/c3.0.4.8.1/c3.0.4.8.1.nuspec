@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>c3</id>
+    <version>0.4.8.1</version>
+    <title>C3.js | D3-based reusable chart library</title>
+    <authors>Masayuki Tanaka</authors>
+    <owners>Masayuki Tanaka</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>http://c3js.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>C3 is a D3-based reusable chart library that enables deeper integration of charts into web applications.</description>
+    <summary />
+    <releaseNotes>This NuGet package combines all individual releases from 0.4.0 to the latest 0.4.8
+For a version inbetween, grab the version on github (https://github.com/masayuki0812/c3/releases)
+
+Updated package: Now includes c3.min.css
+
+New Features:
+
++ Add legend.hide option - #731
++ Add axis.y.inner and axis.y2.inner options - #742
+
+Bug Fixes:
+
++ Fixed class suffix - #717
++ Fixed clip path for vertical axis - #718
++ Fixed tooltip when statcked chart with multiple xs - #719
++ Fixed grid filtering to add and remove - #720
++ Fixed rescale when grids API called - #721
++ Fixed class suffix for '=' - #722
++ Fixed class suffix - #665
++ Fixed tick width for non-fit category axis - #726
++ Fixed point.show not to hide scatter plot - #732
++ Fixed class suffix for back slash - #734
++ Fixed data.values API - #736
++ Fixed bug for zoom.rescale - #738
++ Fixed empty data when timeseries - #737
++ Fixed rotated tick for subchart - #743
++ Fixed hasType when empty data - #757
++ Fixed tooltip when multiple xs on multiple charts - #758
++ Fixed to use c3-legend-item-hidden class to set opacity of hidden legend item - #128
++ Fixed category axis tick when load API called - #756
++ Fixed tick text when flow API called - #772
++ Fixed legend item width when data.names called - #775
++ Fixed interface of toggle API - #776
++ Fixed this context for mouse events
++ Fixed event rect when moving zoom extent - #786
++ Fixed legend state when revert called - #782
++ Fixed legend when revert called - #790
++ Fixed axis.y2.inner - #742
++ Fixed y axis padding when data label shown - #799
++ Fixed to assume axis.y.padding as pixels - #799
++ Fixed to accept category name as x value for grid lines - #800
++ Fixed interaction.enabled option for pie/donut/gauge chart - #801
++ Fixed centered category axis - #804
++ Fixed to accept unixtime string as timeseries date input - #805
++ Fixed axis.y.center
++ Fixed legend when revert called
++ Show 'outer' psitioned axis label even if legend is hidden - #788
+
+Performance Improvement:
+
++ Refactor tick char size calculation - #730
++ Cache legend item text rect - #730
++ Cache tick text size - #730
++ Improve performance for update event rects on timeseries - #553
++ Improve performance when legend is hidden on init - #779</releaseNotes>
+    <copyright>© Masayuki Tanaka 2014</copyright>
+    <language>en-GB</language>
+    <tags>c3 d3 chart graph</tags>
+    <dependencies>
+      <dependency id="d3" version="3.4.4" />
+    </dependencies>
+  </metadata>
+</package>

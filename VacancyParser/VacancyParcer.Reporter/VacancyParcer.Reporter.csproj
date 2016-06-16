@@ -44,6 +44,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Select.HtmlToPdf">
+      <HintPath>..\packages\Select.HtmlToPdf.2.3.0.0\lib\net40\Select.HtmlToPdf.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
@@ -54,6 +57,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -128,10 +132,21 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AnalisysController.cs" />
+    <Compile Include="Controllers\ClassifyController.cs" />
+    <Compile Include="Controllers\ClusteringController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\DataCollector.cs" />
+    <Compile Include="Helpers\PaginationHelper.cs" />
+    <Compile Include="Helpers\SalaryGroup.cs" />
+    <Compile Include="Models\AnalisisInfo.cs" />
+    <Compile Include="Models\AnalisisViewModel.cs" />
+    <Compile Include="Models\ClusterViewModel.cs" />
+    <Compile Include="Models\ModelFilter.cs" />
+    <Compile Include="Models\PaginationList.cs" />
     <Compile Include="Models\Vacancy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -141,6 +156,8 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\c3.css" />
+    <Content Include="Content\c3.min.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -153,6 +170,11 @@
     <Content Include="Content\bootstrap.min.css.map" />
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="App_Data\skils.csv" />
+    <Content Include="Scripts\c3.js" />
+    <Content Include="Scripts\c3.min.js" />
+    <Content Include="Scripts\d3\d3.js" />
+    <Content Include="Scripts\d3\d3.min.js" />
+    <Content Include="Scripts\d3\LICENSE" />
     <None Include="Scripts\jquery-2.2.3.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -179,6 +201,11 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\ChangedData.cshtml" />
+    <Content Include="Views\Clustering\Index.cshtml" />
+    <Content Include="Views\Analisys\Index.cshtml" />
+    <Content Include="Views\Analisys\SetData.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -222,6 +249,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="..\packages\Select.HtmlToPdf.2.3.0.0\build\Select.HtmlToPdf.targets" Condition="Exists('..\packages\Select.HtmlToPdf.2.3.0.0\build\Select.HtmlToPdf.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

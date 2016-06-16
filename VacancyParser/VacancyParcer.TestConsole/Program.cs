@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using VacancyParser.PagesLoader;
 using System.Xml.Linq;
+using VacancyParcer.ClusterLibs;
 
 namespace VacancyParcer.TestConsole
 {
@@ -51,10 +52,11 @@ namespace VacancyParcer.TestConsole
             foreach (var el in threadAr)
                 el.Start();
 
-            while (threadAr.Any(el => el.IsAlive)) {
+            while (threadAr.Any(el => el.IsAlive))
+            {
                 int t1, t2;
                 System.Threading.Thread.Sleep(10000);
-        }
+            }
             dloader.Logger.ForceSave();
             eloader.Logger.ForceSave();
             iloader.Logger.ForceSave();
@@ -106,8 +108,8 @@ namespace VacancyParcer.TestConsole
             };
             foreach (var key in types.Keys)
                 foreach (var value in types[key])
-                    if ((!string.IsNullOrEmpty(data.Job)&&data.Job.ToLower().Contains(value)) 
-                        || (!string.IsNullOrEmpty(data.Sector)&&data.Sector.ToLower().Contains(value)))
+                    if ((!string.IsNullOrEmpty(data.Job) && data.Job.ToLower().Contains(value))
+                        || (!string.IsNullOrEmpty(data.Sector) && data.Sector.ToLower().Contains(value)))
                     {
                         return key;
                     }
@@ -116,7 +118,7 @@ namespace VacancyParcer.TestConsole
 
         static void Salaryparsing(VacancyData[] allVacancy)
         {
-            var salaries=allVacancy
+            var salaries = allVacancy
                 .Select(el => el.Salary.ToLower().Replace(",", "").Trim())
                 .Where(el => el.Any(sub => sub >= '0' && sub <= '9') && !el.Contains("по договоренности")
                     && !el.Contains("competitive (2 to 3 years experience)"))
@@ -124,43 +126,118 @@ namespace VacancyParcer.TestConsole
                 .ToArray();
 
             File.Delete("salariesDebug.txt");
-            for (var i = 0; i < salaries.Length;i++ )
+            for (var i = 0; i < salaries.Length; i++)
             {
 
-                Console.WriteLine("{2}.{0}\n {1}\n\n",salaries[i], SalaryParser.GetValue(salaries[i]),i);
+                Console.WriteLine("{2}.{0}\n {1}\n\n", salaries[i], SalaryParser.GetValue(salaries[i]), i);
                 File.AppendAllText("salariesDebug.txt", string.Format("{0}\n {1}\n\n", salaries[i], SalaryParser.GetValue(salaries[i])));
             }
         }
 
         static void SalaryChange(VacancyData vacancy)
         {
-            var salary=vacancy.Salary.ToLower().Replace(",", "").Trim();
-            
-            if(salary.Any(sub => sub >= '0' && sub <= '9') 
+            var salary = vacancy.Salary.ToLower().Replace(",", "").Trim();
+
+            if (salary.Any(sub => sub >= '0' && sub <= '9')
                 && !salary.Contains("по договоренности")
                     && !salary.Contains("competitive (2 to 3 years experience)"))
             {
                 vacancy.Salary = SalaryParser.GetValue(salary).ToString("0.##");
-            }else
+            }
+            else
             {
                 vacancy.Salary = "None";
-            }         
+            }
         }
 
         static void Main(string[] args)
         {
-            /*var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
-            var allVacancy = new List<VacancyData>();
+
+            var list = new List<double[]>();
+
+            /*PageLoader iloader = ItMozgLoader.Instance;
+            iloader.Logger = new PoolLogger("i/i_debug.txt", "i/i_info.txt", "i/i_error.txt");
+
+            iloader.WaitTime = 250;
+            LoadData(iloader,"i_data_lastLoad.txt");
+            iloader.Logger.ForceSave();*/
+
+            var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
+            VacancyData[] data = null;
 
 
-            foreach (var file in new[] { "i_data.txt" })
-                using (var reader = new StreamReader(file))
+            using (var reader = new StreamReader("i_data_format.txt"))
+            {
+                data = (VacancyData[])serial.Deserialize(reader);
+            }
+
+            var convertedValues = data.Select(Vacancy.FromVacancyData).ToArray();
+            var group = convertedValues.Where(el => el.Salary != 0)
+                    .GroupBy(SalaryGroup.SalaryGrouping)
+                    .OrderBy(el => el.Key).ToArray();
+            using (var x = new StreamWriter("LTR.csv", false, Encoding.UTF8))
+            {
+                foreach (var gr in group)
                 {
-                    VacancyData[] vacancy;
-                    vacancy = (VacancyData[])serial.Deserialize(reader);
-                    allVacancy.AddRange(vacancy);
-                }
+                    x.WriteLine("{0};",gr.Key);
+                    var techGr = gr.Where(el => el.Skils.Contains("Javascript/JScript"))
+                        .GroupBy(el => el.Location)
+                        .OrderByDescending(el => el.Count())
+                        .Take(10);
+                    foreach (var grt in techGr)
+                        x.WriteLine("{0};{1};", grt.Key, grt.Count());
+                    x.WriteLine();
 
+                    var techtemp = gr.Where(el => el.Skils.Contains("Javascript/JScript"))
+                        .GroupBy(el => new DateTime(el.Date.Year,el.Date.Month,1))
+                        .OrderByDescending(el => el.Key)
+                        .Take(10);
+                    foreach (var grt in techtemp)
+                        x.WriteLine("{0:MMMM yyyy};{1};", grt.Key, grt.Count());
+                    x.WriteLine("\n");
+                    
+                }
+            }
+            /*using (var x = new StreamWriter("MMA.csv", false, Encoding.UTF8))
+            {
+                foreach(var gr in group)
+                {
+                    x.WriteLine("{0};{1};{2};{3}", gr.Key, gr.Max(el => el.Salary), gr.Min(el => el.Salary), gr.Average(el => el.Salary));
+                }
+            }
+
+            using(var wrt=new StreamWriter("TotalReport.csv",false,Encoding.UTF8))
+            {
+                
+                foreach(var el in group)
+                {
+                    wrt.WriteLine("{0};{1};",el.Key,el.Count());
+                }
+                wrt.WriteLine(";;");
+                foreach(var gr in group)
+                {
+                    wrt.WriteLine("{0};;", gr.Key);
+                    var dict = new Dictionary<string, int>();
+                    foreach(var el in gr)
+                    {
+                        var sckils = el.Skils.Split(new[] { ' ', ':', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach(var sc in sckils)
+                        {
+                            if (dict.ContainsKey(sc))
+                                dict[sc]++;
+                            else
+                                dict.Add(sc, 1);
+                        }
+                    }
+                    foreach(var el in dict.OrderByDescending(el=>el.Value).Take(20))
+                    {
+                        wrt.WriteLine("{0};{1};", el.Key,el.Value);
+                    }
+                    wrt.WriteLine(";;");
+                }
+            }*/
+
+            /*
             Func<VacancyData, DateTime> groupFun = el =>
             {
                 var date = DateTime.Parse(el.Date);
@@ -184,15 +261,10 @@ namespace VacancyParcer.TestConsole
                 }
                 whiter.WriteLine();
             }*/
-           
-            var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
-            VacancyData[] data;
-            using (var reader = 
-                new StreamReader(@"D:\Work\Custom\VacancyParcer\VacancyParser\VacancyParcer.TestConsole\bin\Debug\i_data_new.txt"))
-                data = (VacancyData[])serial.Deserialize(reader);
+
 
             //"—"
-            /*foreach (var el in data)
+            /*foreach (var el in allVacancy)
             {
                 el.Location = XElement.Parse(el.Location).Value;
                 el.Salary = XElement.Parse(el.Salary)
@@ -203,21 +275,21 @@ namespace VacancyParcer.TestConsole
                 el.Experiance = XElement.Parse(el.Experiance).Value;
                 var tecn = el.Skils
                     .Trim()
-                    .Replace("\r", "")
-                    .Replace("\n", "")
-                    .Replace("\t", "");
+                    .Replace("\r", " ")
+                    .Replace("\n", " ")
+                    .Replace("\t", " ");
                 while(tecn.Contains("  "))
                     tecn=tecn.Replace("  ", " ");
                 el.Skils = tecn;
             }*/
-            using(var writer=new StreamWriter("Jobs.csv",false,Encoding.UTF8))
+            /*using(var writer=new StreamWriter("Jobs.csv",false,Encoding.UTF8))
             {
                 var forInput = data.SelectMany(el => el.Job.ToLower()
                     .Split(new[] { ':', ' ', ',','/' }, StringSplitOptions.RemoveEmptyEntries))
                     .GroupBy(el=>el).OrderByDescending(el=>el.Count()).ToArray();
                 foreach (var el in forInput)
                     writer.WriteLine("{0};", el.Key);
-            }
+            }*/
 
         }
 
@@ -246,7 +318,7 @@ namespace VacancyParcer.TestConsole
                     whiter.WriteLine("{0};;", el);
             }*/
 
-            var mdata = allVacancy.Where(el => profType(el) != "Unknown" && el.Salary != "None" && el.Salary != "0"&& double.Parse(el.Salary)<2*1000*1000)
+            var mdata = allVacancy.Where(el => profType(el) != "Unknown" && el.Salary != "None" && el.Salary != "0" && double.Parse(el.Salary) < 2 * 1000 * 1000)
                .GroupBy(SalaryGroup.SalaryGrouping);
 
             //using (var whiter = new StreamWriter("infoData5.csv", false, Encoding.UTF8))
@@ -270,7 +342,7 @@ namespace VacancyParcer.TestConsole
 
                 whiter.WriteLine("Location;Count;");
 
-                foreach (var group in datatatata.OrderByDescending(el=>el.Count()))
+                foreach (var group in datatatata.OrderByDescending(el => el.Count()))
                 {
                     var datas = group.Select(el => double.Parse(el.Salary));
                     whiter.WriteLine("{0};{1};", group.Key, group.Count());
@@ -280,9 +352,9 @@ namespace VacancyParcer.TestConsole
 
             var datass = allVacancy.Where(el => !string.IsNullOrEmpty(el.Skils)).Count();
             var dict = new Dictionary<string, int>();
-            foreach(var el in allVacancy.Where(el=>!string.IsNullOrEmpty(el.Skils)))
+            foreach (var el in allVacancy.Where(el => !string.IsNullOrEmpty(el.Skils)))
             {
-                var scils=el.Skils.Split(new []{' ',':',';',','},StringSplitOptions.RemoveEmptyEntries);
+                var scils = el.Skils.Split(new[] { ' ', ':', ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var s in scils)
                     if (dict.ContainsKey(s))
                         dict[s]++;
@@ -290,7 +362,7 @@ namespace VacancyParcer.TestConsole
                         dict.Add(s, 1);
             }
 
-            var x=dict.OrderByDescending(el => el.Value).Take(100);
+            var x = dict.OrderByDescending(el => el.Value).Take(100);
             using (var whiter = new StreamWriter("infoData4.csv", false, Encoding.UTF8))
             {
 
@@ -306,13 +378,13 @@ namespace VacancyParcer.TestConsole
 
                 var r = new Random();
                 whiter.WriteLine("Salary;Experiance;");
-                
-                foreach(var group in mdata)
+
+                foreach (var group in mdata)
                 {
                     var aver = group.Average(el => double.Parse(el.Salary));
-                    whiter.WriteLine("{0};;",group.Key);
+                    whiter.WriteLine("{0};;", group.Key);
                     foreach (var el in group.Where(el => double.Parse(el.Salary) < (aver / 2)).OrderByDescending(el => double.Parse(el.Salary)).Take(10))
-                        whiter.WriteLine("{0};{1};",el.Salary,r.Next(0,7));
+                        whiter.WriteLine("{0};{1};", el.Salary, r.Next(0, 7));
                     whiter.WriteLine(";;");
                 }
             }
@@ -325,39 +397,39 @@ namespace VacancyParcer.TestConsole
                     whiter.Write("{0};", prop.Name);
                 }
                 whiter.WriteLine("Prof;");
-                foreach (var vac in allVacancy.Where(el => profType(el) != "Unknown" && el.Salary!="None"))
+                foreach (var vac in allVacancy.Where(el => profType(el) != "Unknown" && el.Salary != "None"))
                 {
                     foreach (var prop in proreries)
                     {
                         whiter.Write("{0};", prop.GetValue(vac, null));
                     }
-                    whiter.WriteLine("{0};",profType(vac));
+                    whiter.WriteLine("{0};", profType(vac));
                 }
             }
-            
-            using(var whiter=new StreamWriter("info.csv",false,Encoding.UTF8))
+
+            using (var whiter = new StreamWriter("info.csv", false, Encoding.UTF8))
             {
                 var proreries = typeof(VacancyData).GetProperties().Where(el => el.Name != "Job").ToArray();
-                foreach(var prop in proreries)
+                foreach (var prop in proreries)
                 {
                     whiter.Write("{0};", prop.Name);
                 }
                 whiter.WriteLine();
-                foreach(var vac in allVacancy.Where(el=>!string.IsNullOrEmpty(el.Skils) && el.Salary!="None").Take(30))
+                foreach (var vac in allVacancy.Where(el => !string.IsNullOrEmpty(el.Skils) && el.Salary != "None").Take(30))
                 {
                     foreach (var prop in proreries)
                     {
-                        whiter.Write("{0};", prop.GetValue(vac,null));
+                        whiter.Write("{0};", prop.GetValue(vac, null));
                     }
                     whiter.WriteLine();
 
                 }
             }
-            
+
             var kazanVacancy = Els(allVacancy
                 .Where(el => el.Location.ToLower().Contains("казань") || el.Location.ToLower().Contains("kazan"))
                 .ToArray());
-            
+
             var highlevelSalary = Els(allVacancy
                 .Where(el => int.Parse(el.Salary) > 110000)
                 .ToArray());
@@ -380,7 +452,7 @@ namespace VacancyParcer.TestConsole
                     && int.Parse(el.Salary) > 110000)
                 .ToArray());
 
-            var salary = allVacancy.GroupBy(el=>el.Location).OrderByDescending(el=>el.Count()).ToArray();
+            var salary = allVacancy.GroupBy(el => el.Location).OrderByDescending(el => el.Count()).ToArray();
             foreach (var xc in salary)
             {
                 Console.WriteLine("{0} {1}", xc.Key, xc.Count());

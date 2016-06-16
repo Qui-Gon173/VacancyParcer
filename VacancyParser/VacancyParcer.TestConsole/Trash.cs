@@ -19,5 +19,18 @@ namespace VacancyParcer.TestConsole
                 return 4;
             return 5;
         }
+
+        public static int SalaryGrouping(this Vacancy el)
+        {
+            if (el.Salary < 35000)
+                return 1;
+            if (el.Salary >= 35000 && el.Salary < 55000)
+                return 2;
+            if (el.Salary >= 55000 && el.Salary < 90000)
+                return 3;
+            if (el.Salary >= 90000 && el.Salary < 125000)
+                return 4;
+            return 5;
+        }
     }
 }

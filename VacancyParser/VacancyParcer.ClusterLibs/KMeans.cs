@@ -13,28 +13,28 @@ namespace VacancyParcer.ClusterLibs
     public class KMeans
     {
         public const double UncertaintyVal = 1.6;
-        public const int clustersCount = 7;
-        public const int VectorLegth = 9;
         public const int MaxIterations = 1000;
 
+        public int ClustersCount { get; set; }
+        public int VectorLength { get; set; }
         public double MaxSalary { get; set; }
         public double MaxExperianse { get; set; }
 
 
         private Point[] GetRandomClusters()
         {
-            var result = new Point[clustersCount];
+            var result = new Point[ClustersCount];
             var rand = new Random();
-            for (var i = 0; i < clustersCount; i++)
+            for (var i = 0; i < ClustersCount; i++)
             {
 
-                var newCoordinates = new double[VectorLegth];
+                var newCoordinates = new double[VectorLength];
                 newCoordinates[0] = rand.NextDouble() * MaxSalary;
                 newCoordinates[1] = rand.NextDouble() * MaxExperianse;
                 double MaxValue = 1;
-                for (var j = 2; j < VectorLegth; j++)
+                for (var j = 2; j < VectorLength; j++)
                 {
-                    if (j == VectorLegth - 1)
+                    if (j == VectorLength - 1)
                     {
                         newCoordinates[j] = Math.Sqrt(MaxValue);
                         break;
@@ -52,8 +52,7 @@ namespace VacancyParcer.ClusterLibs
         {
             double result = 0;
             for (var clustInd = 0; clustInd < clusters.Length; clustInd++)
-                for (var objInd = 0; objInd < objects.Length; objInd++)
-                    result += Point.Distance(objects[objInd], clusters[clustInd]);
+                    result += objects.AsParallel().Sum(el=>Point.Distance(el, clusters[clustInd]));
             return result;
         }
 
@@ -64,14 +63,14 @@ namespace VacancyParcer.ClusterLibs
                 for (var objInd = 0; objInd < objects.Length; objInd++)
                 {
                     var distance = Point.Distance(objects[objInd], clusters[clustInd]);
-                    attachmentMatrix[objInd, clustInd] = distance != 0
+                    attachmentMatrix[clustInd,objInd] = distance != 0
                         ? Math.Pow(1 / distance, 2 / (UncertaintyVal - 1))
                         : 1;
                 }
             var result = new Point[clusters.Length];
             for (var clustInd = 0; clustInd < clusters.Length; clustInd++)
             {
-                var newPoint = new Point(new double[VectorLegth]);
+                var newPoint = new Point(new double[VectorLength]);
                 double devider = 0.0;
                 for (var objInd = 0; objInd < objects.Length; objInd++)
                 {
@@ -90,7 +89,7 @@ namespace VacancyParcer.ClusterLibs
             for (var i = 0; i < MaxIterations; i++)
             {
                 deviation = GetDeviation(objects, clusters);
-                if (oldDeviation == deviation)
+                if (Math.Abs(oldDeviation - deviation) < 0.01)
                     break;
                 oldDeviation = deviation;
                 clusters = ClusterRecaclucation(objects, clusters);

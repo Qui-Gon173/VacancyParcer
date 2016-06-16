@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Vacancy>
+
+@{
+    ViewBag.Title = "Обработанные данные";
+    var professions = VacancyParcer.Reporter.Models.Vacancy.Professions;
+}
+
+<h2>Обработанные данные</h2>
+<table class="table table-striped">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Job)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Location)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Date)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Salary)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Experiance)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Skils)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Job)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Location)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Salary)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Experiance)
+            </td>
+            <td class="col-md-2">
+                (@for (var i = 0; i < item.Skils.Count; i++)
+                {
+                    var el=item.Skils.ElementAt(i);
+                    if (i == item.Skils.Count - 1)
+                    {
+                        <span title="@professions[el.Key]">@string.Format("{0}", el.Value)</span>
+                    }
+                    else
+                    {
+                        <span title="@professions[el.Key]">@string.Format("{0},", el.Value)</span>
+                    }
+                })
+            </td>
+        </tr>
+    }
+</table>
+@Html.Pagination(Url,(Model as PaginationList<Vacancy>))

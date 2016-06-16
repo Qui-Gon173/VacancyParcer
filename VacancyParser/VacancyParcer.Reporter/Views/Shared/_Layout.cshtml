@@ -5,12 +5,34 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    @Styles.Render("~/Content/bootstrap")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/d3")
 </head>
 <body>
-    @RenderBody()
-
-    @Scripts.Render("~/bundles/jquery")
+    <div class="panel">
+        <div class="panel-heading">
+            <nav class="navbar navbar-default navbar-fixed-top">
+                <div class="navbar-header">
+                    @Html.ActionLink("IT профессии", "Index", "Home", null, new {@class="navbar-brand" })
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            @Html.ActionLink("Главная", "Index", "Home")
+                        </li>
+                        <li>
+                            @Html.ActionLink("Обработанные данные", "ChangedData", "Home")
+                        </li>
+                     </ul>
+                </div>
+            </nav>
+        </div>
+        <div class="panel-body">
+            @RenderBody()
+        </div>
+    </div>
     @RenderSection("scripts", required: false)
 </body>
 </html>
