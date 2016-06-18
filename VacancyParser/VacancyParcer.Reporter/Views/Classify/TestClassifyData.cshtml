@@ -1,0 +1,46 @@
+﻿@model PaginationList<Tuple<int, IrisData>>
+@{
+    ViewBag.Title = "Классифицированные данные";
+    var clastDict = Session["testClusterName"];
+}
+<h2>Классифицированные данные</h2>
+<div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation"><a href="@Url.Action("TestFullData")">Исходные данные</a></li>
+        <li role="presentation"><a href="@Url.Action("TestDataForStudy")">Данные для обучения</a></li>
+        <li role="presentation" class="active"><a>Классифицированные данные</a></li>
+    </ul>
+</div>
+
+
+
+<div class="alert alert-success">Данные взяты с базы знаний IRIS. С помощью сети Кохонена данные были классифицированны. Процент ошибок = @(ViewBag.Error) %</div>
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>sepal length</th>
+                <th>sepal width</th>
+                <th>petal length</th>
+                <th>petal width</th>
+                <th>Class(original)</th>
+                <th>Class(defined)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var el in Model)
+            {
+                <tr class="@(el.Item2.ClassIndex==el.Item1?"green":"red")">
+                    @foreach (var d in el.Item2.Data)
+                    {
+                        <td>@d</td>
+                    }
+                    <td>@string.Format("{0}({1})", el.Item2.ClassName, el.Item2.ClassIndex)</td>
+                    <td>@el.Item1</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @Html.Pagination(Url, Model)
+</div>

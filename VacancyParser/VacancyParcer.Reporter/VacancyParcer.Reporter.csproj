@@ -145,6 +145,7 @@
     <Compile Include="Models\AnalisisInfo.cs" />
     <Compile Include="Models\AnalisisViewModel.cs" />
     <Compile Include="Models\ClusterViewModel.cs" />
+    <Compile Include="Models\IrisData.cs" />
     <Compile Include="Models\ModelFilter.cs" />
     <Compile Include="Models\PaginationList.cs" />
     <Compile Include="Models\Vacancy.cs" />
@@ -175,6 +176,7 @@
     <Content Include="Scripts\d3\d3.js" />
     <Content Include="Scripts\d3\d3.min.js" />
     <Content Include="Scripts\d3\LICENSE" />
+    <Content Include="App_Data\iris.data" />
     <None Include="Scripts\jquery-2.2.3.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -206,6 +208,12 @@
     <Content Include="Views\Clustering\Index.cshtml" />
     <Content Include="Views\Analisys\Index.cshtml" />
     <Content Include="Views\Analisys\SetData.cshtml" />
+    <Content Include="Views\Classify\TestFullData.cshtml" />
+    <Content Include="Views\Classify\TestDataForStudy.cshtml" />
+    <Content Include="Views\Classify\TestClassifyData.cshtml" />
+    <Content Include="Views\Classify\MainFullData.cshtml" />
+    <Content Include="Views\Classify\MainDataForStudy.cshtml" />
+    <Content Include="Views\Classify\MainClassifyData.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -1,0 +1,43 @@
+﻿@model PaginationList<IrisData>
+@{
+    ViewBag.Title = "Данные для обучения";
+}
+
+<h2>Тестовые данные для обучения</h2>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation"><a href="@Url.Action("TestFullData")">Исходные данные</a></li>
+    <li role="presentation" class="active"><a>Данные для обучения</a></li>
+    <li role="presentation"><a href="@Url.Action("TestClassifyData")">Классифицированные данные</a></li>
+</ul>
+
+
+
+<div class="alert alert-success">Данные взяты с базы знаний IRIS. На основе данной информации производится обучение сети Кохонена</div>
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>sepal length</th>
+                <th>sepal width</th>
+                <th>petal length</th>
+                <th>petal width</th>
+                <th>Class</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var el in Model)
+            {
+                <tr>
+                    @foreach (var d in el.Data)
+                    {
+                        <td>@d</td>
+                    }
+                    <td>@string.Format("{0}(1)", el.ClassName, el.ClassIndex)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @Html.Pagination(Url, Model)
+</div>

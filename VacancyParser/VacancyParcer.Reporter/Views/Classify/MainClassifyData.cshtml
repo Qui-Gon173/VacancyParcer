@@ -1,0 +1,67 @@
+﻿@model PaginationList<Tuple<int, Vacancy>>
+@{
+    ViewBag.Title = "Классифицированные данные";
+    var form = new Vacancy();
+    var professions = VacancyParcer.Reporter.Models.Vacancy.Professions;
+    var clustersName = Session["mainClusterName"] as Dictionary<string, int>; 
+}
+<h2>Классифицированные данные</h2>
+<div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation"><a href="@Url.Action("MainFullData")">Исходные данные</a></li>
+        <li role="presentation"><a href="@Url.Action("MainDataForStudy")">Данные для обучения</a></li>
+        <li role="presentation" class="active"><a>Классифицированные данные</a></li>
+    </ul>
+</div>
+
+
+
+<div class="alert alert-success">Данные взяты в автоматическом режиме. С помощью сети Кохонена данные были классифицированны. Процент ошибок = @(ViewBag.Error) %</div>
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => form.Salary)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => form.Experiance)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => form.Skils)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => form.Job)
+                </th>
+                <th>Кластер</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var el in Model)
+            {
+                <tr class="@(clustersName.ContainsKey(el.Item2.Job) && clustersName[el.Item2.Job] == el.Item1 ? "green" : "red")">
+                    <td>@el.Item2.Salary</td>
+                    <td>@el.Item2.Experiance</td>
+                    <td class="col-md-2">
+                        (@for (var i = 0; i < el.Item2.Skils.Count; i++)
+                        {
+                            var item = el.Item2.Skils.ElementAt(i);
+                            if (i == el.Item2.Skils.Count - 1)
+                            {
+                                <span title="@professions[item.Key]">@string.Format("{0}", item.Value)</span>
+                            }
+                            else
+                            {
+                                <span title="@professions[item.Key]">@string.Format("{0},", item.Value)</span>
+                            }
+                        })
+                    </td>
+                    <td>@el.Item2.Job</td>
+                    <td>@el.Item1</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @Html.Pagination(Url, Model)
+</div>

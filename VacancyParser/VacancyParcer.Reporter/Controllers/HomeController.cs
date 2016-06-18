@@ -16,7 +16,6 @@ namespace VacancyParcer.Reporter.Controllers
     {
         public ActionResult Index(ModelFilter filter)
         {
-            return RedirectToAction("SetData", "Analisys");
             return View(new PaginationList<VacancyData>(DataCollector.VacancyData.Value, filter));
         }
 

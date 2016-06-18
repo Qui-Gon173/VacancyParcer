@@ -14,33 +14,75 @@ namespace VacancyParcer.ClusterLibs
             public double Singalize(double[] signals)
             {
                 return signals.Zip(SignalsWeight,
-                    (f, s) => f * s)
-                    .Aggregate((acc,el)=>acc+=el);
+                    (f, s) => f - s)
+                    .Select(el => el * el)
+                    .Sum();
             }
         }
 
-        public const double StudyStep = 0.5;
+        public double StudyStep = 0.7;
         private Neiron[] Neirons;
 
         public KohonenWeb(int signalsCount,int clusterCount)
         {
             Neirons =new Neiron[clusterCount];
-            for (var i = 0; i < clusterCount;i++ )
-                Neirons[i]=new Neiron { 
-                    SignalsWeight = new double[signalsCount] 
+            var r = new Random();
+            for (var i = 0; i < clusterCount; i++)
+            {
+                Neirons[i] = new Neiron
+                {
+                    SignalsWeight = new double[signalsCount]
                 };
+                for (var j = 0; j < signalsCount; j++)
+                    Neirons[i].SignalsWeight[j] = r.NextDouble();
+            }
         }
 
-        public void StudyNeiron(double[] signals,int rightIndex)
+        private double h_t(double[] u,double[] c,int t)
         {
-            var rightAnswerNeiron=Neirons[rightIndex];
-            if(signals.Length!=rightAnswerNeiron.SignalsWeight.Length)
+            var g=1/Math.Exp(Math.Pow(t,-2));
+            var d=u.Zip(c,(f,s)=>(f-s)*(f-s)).Sum();
+            return Math.Exp(-d/g);
+        }
+
+        double gauss_neighborhood(double[] u, double[] c, int n)
+        {
+            double d, g;
+            int t = 1000;
+
+            g = (double)n / (double)t; g = Math.Exp(-g);
+            d =  u.Zip(c, (f, s) => (f - s) * (f - s)).Sum();
+            d = Math.Exp(-((d * d) / (2.0 * g * g))) * 10.0;
+
+            return d;
+        }
+        
+        public void StudyNeiron(double[] signals)
+        {
+            if (signals.Length != Neirons.Max(el => el.SignalsWeight.Length)
+                || signals.Length != Neirons.Min(el => el.SignalsWeight.Length))
                 throw new Exception("Asshole!");
-            for(var i=0;i<signals.Length;i++)
+            var sqrts = Neirons.Select(el => el.Singalize(signals)).ToArray();
+            var min = double.MaxValue;
+            var minInd = 0;
+            for (var i = 0; i < Neirons.Length; i++)
             {
-                var neironWeights=rightAnswerNeiron.SignalsWeight;
-                neironWeights[i] += StudyStep * (signals[i] - neironWeights[i]);
+                if (sqrts[i] < min)
+                {
+                    min = sqrts[i];
+                    minInd = i;
+                }
             }
+            var cArr = Neirons[minInd].SignalsWeight;
+            var n = 1;
+            for (var k = 0; k < Neirons.Length;k++ )
+                for (var i = 0; i < signals.Length; i++)
+                {
+                    var neironWeights = Neirons[k].SignalsWeight;
+                    neironWeights[i] += StudyStep * h_t(neironWeights, cArr, n) * (signals[i] - neironWeights[i]);
+                    n++;
+                }
+            StudyStep -= 0.001;
         }
         
         public int ClassifyObject(double[] signals)
@@ -48,18 +90,18 @@ namespace VacancyParcer.ClusterLibs
             if (signals.Length != Neirons.Max(el=>el.SignalsWeight.Length)
                 || signals.Length != Neirons.Min(el => el.SignalsWeight.Length))
                 throw new Exception("Asshole!");
-            var sums = Neirons.Select(el => el.Singalize(signals)).ToArray();
-            var max = 0.0;
-            var maxInd = 0;
-            for (var i = 0; i < signals.Length;i++)
+            var sqrts = Neirons.Select(el => el.Singalize(signals)).ToArray();
+            var min = double.MaxValue;
+            var minInd = 0;
+            for (var i = 0; i < Neirons.Length;i++)
             {
-                if (sums[i] > max)
+                if (sqrts[i] < min)
                 {
-                    max = sums[i];
-                    maxInd = i;
+                    min = sqrts[i];
+                    minInd = i;
                 }
             }
-            return maxInd;
+            return minInd;
         }
     }
 }

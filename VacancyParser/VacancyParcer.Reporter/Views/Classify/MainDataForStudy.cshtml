@@ -1,0 +1,64 @@
+﻿@model PaginationList<Vacancy>
+@{
+    ViewBag.Title = "Данные для обучения";
+    var form = new Vacancy();
+    var professions = VacancyParcer.Reporter.Models.Vacancy.Professions;  
+}
+
+<h2>Данные для обучения</h2>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation"><a href="@Url.Action("MainFullData")">Исходные данные</a></li>
+    <li role="presentation" class="active"><a>Данные для обучения</a></li>
+    <li role="presentation"><a href="@Url.Action("MainClassifyData")">Классифицированные данные</a></li>
+</ul>
+
+
+
+<div class="alert alert-success">Данные взяты в автоматическом режиме. На основе данной информации производится обучение сети Кохонена</div>
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => form.Salary)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => form.Experiance)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => form.Skils)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => form.Job)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var el in Model)
+            {
+                <tr>
+                    <td>@el.Salary</td>
+                    <td>@el.Experiance</td>
+                    <td class="col-md-2">
+                        (@for (var i = 0; i < el.Skils.Count; i++)
+                        {
+                            var item = el.Skils.ElementAt(i);
+                            if (i == el.Skils.Count - 1)
+                            {
+                                <span title="@professions[item.Key]">@string.Format("{0}", item.Value)</span>
+                            }
+                            else
+                            {
+                                <span title="@professions[item.Key]">@string.Format("{0},", item.Value)</span>
+                            }
+                        })
+                    </td>
+                    <td>@el.Job</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @Html.Pagination(Url, Model)
+</div>

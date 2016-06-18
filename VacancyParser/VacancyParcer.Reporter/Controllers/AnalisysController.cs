@@ -115,8 +115,10 @@ namespace VacancyParcer.Reporter.Controllers
         }
 
         [HttpPost]
-        public ActionResult SetData(int texCount, int cityCount,string tex)
+        public ActionResult SetData(int texCount, int cityCount,string tex,bool report)
         {
+            if(report)
+                return RedirectToAction("DownloadPage","Home", new { page = Url.Action("Index","Analisys",new { texCount, cityCount, tex },Request.Url.Scheme) });
             return RedirectToAction("Index", new {texCount, cityCount, tex });
         }
 

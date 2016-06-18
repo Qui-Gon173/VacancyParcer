@@ -1,17 +1,19 @@
 ﻿@model ClusterViewModel
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Кластеризация";
 }
 
-<h2>Index</h2>
-@Html.ActionLink("Download", "DownloadPage","Home",new {page=Url.Action("Index","Clustering",null,Request.Url.Scheme) },new {@class="btn btn-primary"})
+<h2>Кластеризация</h2>
 
+<h3>Кластеризация по атрибутам Зарплата-опыт работы</h3>
 <div id="attibutes" data-json="@Model.Attributes">
 
 </div>
+<h3>Кластеризация по объектам исследования</h3>
 <div id="objects" data-json="@Model.Objects">
 
 </div>
+<h3>Кластеризация в темпоральном пространстве</h3>
 <div id="time" data-json="@Model.Time">
 
 </div>

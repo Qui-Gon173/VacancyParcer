@@ -1,7 +1,7 @@
 ﻿@model SelectList
 
 @{
-    ViewBag.Title = "SetData";
+    ViewBag.Title = "Формирование отчета";
 }
 <div class="col-md-6">
     <h2>Формирование отчета</h2>
@@ -12,12 +12,13 @@
         <div class="panel-body ">
             @using (Html.BeginForm())
             {
+                @Html.Hidden("report",false);
                 <div class="form-group">
                     @Html.Label("texCount", "Число технологий:")
                     @Html.TextBox("texCount", null, new { @class = "form-control", placeholder = "Введите число" })
                 </div>
                 <div class="form-group">
-                    @Html.Label("tex", "Технология:")
+                    @Html.Label("tex", "Технология/ресурс:")
                     @Html.DropDownList("tex", Model, new { @class = "form-control", placeholder = "Выберите одно из доступных" })
                 </div>
                 <div class="form-group">
@@ -25,7 +26,15 @@
                     @Html.TextBox("cityCount", null, new { @class = "form-control", placeholder = "Введите число" })
                 </div>
                 <button class="btn btn-lg btn-primary btn-block" type="submit">Составить</button>
+                <button id="setReport" class="btn btn-lg btn-primary btn-block" type="submit">Скачать PDF</button>
             }
         </div>
     </div>
 </div>
+<script>
+    $().ready(function () {
+        $('#setReport').click(function () {
+            $('#report').val(true);
+        });
+    });
+</script>

@@ -63,3 +63,11 @@ textarea {
 .btn.active{
     cursor:default !important;
 }
+
+.green{
+    color:green;
+}
+
+.red{
+    color:red;
+}
