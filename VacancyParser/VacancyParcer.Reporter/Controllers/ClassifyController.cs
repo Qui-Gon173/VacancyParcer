@@ -16,14 +16,14 @@ namespace VacancyParcer.Reporter.Controllers
 
         public class Tututple<T>
         {
-            public Tuple<T[], T[], Tuple<int, T>[],double> Value { get; private set; }
+            public Tuple<T[], T[], Tuple<string, T>[], double> Value { get; private set; }
 
-            public Tututple(T[] data, T[] dataForStuding, Tuple<int, T>[] classifyData,double errors)
+            public Tututple(T[] data, T[] dataForStuding, Tuple<string, T>[] classifyData, double errors)
             {
-                Value = new Tuple<T[], T[], Tuple<int, T>[],double>(data, dataForStuding, classifyData,errors);
+                Value = new Tuple<T[], T[], Tuple<string, T>[], double>(data, dataForStuding, classifyData, errors);
             }
         }
-        
+
         public ActionResult MainClassify()
         {
             Session.Clear();
@@ -33,36 +33,18 @@ namespace VacancyParcer.Reporter.Controllers
             var countsOfClasses = data.GroupBy(el => el.Job).ToDictionary(el => el.Key, el => el.Count());
             var dataForStuding = (from d in data
                                   group d by d.Job into dg
-                                  from dgp in dg.Take(countsOfClasses[dg.Key]<24?countsOfClasses[dg.Key]/2:12)
+                                  from dgp in dg.Take(countsOfClasses[dg.Key] < 200 ? countsOfClasses[dg.Key] / 2 : 100)
                                   select dgp).ToArray();
             var dataForClassing = data.Except(dataForStuding).ToArray();
-            var tmpStuding = dataForStuding.ToList();
-            var web = new KohonenWeb(9, 7);
-            var r = new Random();
-            while (tmpStuding.Count != 0)
-            {
-                var i = r.Next(tmpStuding.Count);
-                web.StudyNeiron(tmpStuding[i].ConvertToPoint().Coordinates);
-                tmpStuding.RemoveAt(i);
-            }
-            var result = new Queue<Tuple<int, Vacancy>>();
-            foreach (var el in data)
-            {
-                result.Enqueue(new Tuple<int, Vacancy>(web.ClassifyObject(el.ConvertToPoint().Coordinates), el));
-            }
-            var clustNames=new Dictionary<string,int>();
-            foreach(var pr in Vacancy.Professions.Values)
-            {
-                var rtd=result.Where(el => el.Item2.Job == pr && !clustNames.Values.Contains(el.Item1)).GroupBy(el => el.Item1).ToArray();
-                if (rtd.Count() == 0)
-                    break;
-                var max = rtd.Max(el => el.Count());
-                clustNames.Add(pr, rtd.First(el => el.Count() == max).Key);
-            }
-            Session.Add("mainClusterName", clustNames);
-            var rightData = result.Where(el => clustNames.ContainsKey(el.Item2.Job) && clustNames[el.Item2.Job] == el.Item1).ToArray();
-            var count = result.Count(el=>!clustNames.ContainsKey(el.Item2.Job)||clustNames[el.Item2.Job]!=el.Item1);
-            Session.Add("mainData", new Tututple<Vacancy>(data, dataForStuding, result.Except(rightData).Take(rightData.Count()/3).Concat(rightData).OrderBy(el=>el.Item2.Date).ToArray(), Math.Round(100*( data.Length-count)/(double)data.Length,2)));
+            var elementStudingData=dataForStuding.Select(el => el.ConvertToElement()).ToArray();
+            var len = (int)elementStudingData.Average(el => el.Coordinates.Length);
+            var web = new KohonenWebSecond(10000, 150, 150, len);
+            web.StudyElements = dataForStuding.Select(el => el.ConvertToElement()).ToArray();
+            web.Train();
+            var classifiedData = dataForClassing.Select(el => new Tuple<string, Vacancy>(web.BestInStudyArray(el.ConvertToElement()).ClassType, el))
+                .ToArray();
+            var errorPersent = 100 * classifiedData.Count(el => el.Item1 != el.Item2.Job) / (double)classifiedData.Length;
+            Session.Add("mainData", new Tututple<Vacancy>(data, dataForStuding, classifiedData, Math.Round(errorPersent, 2)));
             return RedirectToAction("MainFullData");
         }
 
@@ -82,68 +64,49 @@ namespace VacancyParcer.Reporter.Controllers
         {
             var data = (Session["mainData"] as Tututple<Vacancy>).Value;
             ViewBag.Error = data.Item4;
-            return View(new PaginationList<Tuple<int, Vacancy>>(data.Item3, filter));
+            return View(new PaginationList<Tuple<string, Vacancy>>(data.Item3, filter));
         }
 
         public ActionResult TestClassify()
         {
             Session.Clear();
             var data = DataCollector.IrisArray.Value;
-            var countsOfClasses = data.GroupBy(el => el.ClassIndex).ToDictionary(el => el.Key, el => el.Count());
+            var countsOfClasses = data.GroupBy(el => el.ClassType).ToDictionary(el => el.Key, el => el.Count());
             var dataForStuding = (from d in data
-                                 group d by d.ClassIndex into dg
-                                 from dgp in dg.Take(countsOfClasses[dg.Key] / 2)
-                                 select dgp).ToArray();
+                                  group d by d.ClassType into dg
+                                  from dgp in dg.Take(countsOfClasses[dg.Key] / 2)
+                                  select dgp).ToArray();
             var dataForClassing = data.Except(dataForStuding).ToArray();
-            var tmpStuding = dataForStuding.ToList();
-            var max=data.Max(el=>el.Data.Length);
-            var min=data.Min(el=>el.Data.Length);
-            var web = new KohonenWeb(max, countsOfClasses.Count);
-            var r = new Random();
-            while (tmpStuding.Count != 0)
-            {
-                var i = r.Next(tmpStuding.Count);
-                web.StudyNeiron(tmpStuding[i].Data);
-                tmpStuding.RemoveAt(i);
-            }
-            var result = new Queue<Tuple<int, IrisData>>();
-            foreach(var el in data)
-            {
-                result.Enqueue(new Tuple<int, IrisData>(web.ClassifyObject(el.Data), el));
-            }
-            var clustNames = new Dictionary<int, int>();
-            foreach (var pr in data.Select(el=>el.ClassIndex).Distinct())
-            {
-                var rtd = result.Where(el => el.Item2.ClassIndex == pr && !clustNames.Values.Contains(el.Item1)).GroupBy(el => el.Item1).ToArray();
-                if (rtd.Count() == 0)
-                    break;
-                var mmax = rtd.Max(el => el.Count());
-                clustNames.Add(pr, rtd.First(el => el.Count() == mmax).Key);
-            }
-            Session.Add("testClusterName", clustNames);
 
-            var error=Math.Round(r.NextDouble()*7+33,2);
-            Session.Add("testData",new Tututple<IrisData>(data, dataForStuding, result.ToArray(), error));
+            var len = (int)dataForStuding.Average(el => el.Coordinates.Length);
+            var web = new KohonenWebSecond(10000, 50, 50, len);
+            web.StudyElements = dataForStuding;
+            web.Train();
+            var classifiedData = dataForClassing.Select(el => new Tuple<string, Element>(web.BestInStudyArray(el).ClassType, el))
+                .ToArray();
+            var errorPersent = 100 * classifiedData.Count(el=>el.Item1!=el.Item2.ClassType) / (double)classifiedData.Length;
+
+            Session.Add("testData", new Tututple<Element>(data, dataForStuding, classifiedData, Math.Round(errorPersent, 2)));
             return RedirectToAction("TestFullData");
         }
 
         public ActionResult TestFullData(ModelFilter filter)
         {
-            var data = (Session["testData"] as Tututple<IrisData>).Value.Item1;
-            return View(new PaginationList<IrisData>(data, filter));
+            var data = (Session["testData"] as Tututple<Element>).Value.Item1;
+            return View(new PaginationList<Element>(data, filter));
         }
 
         public ActionResult TestDataForStudy(ModelFilter filter)
         {
-            var data = (Session["testData"] as Tututple<IrisData>).Value.Item2;
-            return View(new PaginationList<IrisData>(data, filter));
+            var data = (Session["testData"] as Tututple<Element>).Value.Item2;
+            return View(new PaginationList<Element>(data, filter));
         }
 
         public ActionResult TestClassifyData(ModelFilter filter)
         {
-            var data = (Session["testData"] as Tututple<IrisData>).Value;
+            var data = (Session["testData"] as Tututple<Element>).Value;
             ViewBag.Error = data.Item4;
-            return View(new PaginationList<Tuple<int,IrisData>>(data.Item3, filter));
+            return View(new PaginationList<Tuple<string, Element>>(data.Item3, filter));
         }
 
     }

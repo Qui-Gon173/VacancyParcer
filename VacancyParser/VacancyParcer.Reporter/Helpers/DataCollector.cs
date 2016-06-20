@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Xml.Serialization;
+using VacancyParcer.ClusterLibs;
 using VacancyParcer.Reporter.Models;
 using VacancyParser.PagesLoader;
 
@@ -18,12 +19,12 @@ namespace VacancyParcer.Reporter.Helpers
             ConvertedVacancyData = new Lazy<IEnumerable<Vacancy>>(() =>
                 VacancyData.Value.Select(Vacancy.FromVacancyData)
             );
-            IrisArray = new Lazy<IrisData[]>(GetIrisData);
+            IrisArray = new Lazy<Element[]>(GetIrisData);
         }
 
         public static Lazy<IEnumerable<VacancyData>> VacancyData { get; private set; }
         public static Lazy<IEnumerable<Vacancy>> ConvertedVacancyData { get; private set; }
-        public static Lazy<IrisData[]> IrisArray { get; private set; }
+        public static Lazy<Element[]> IrisArray { get; private set; }
 
         private static VacancyData[] GetData()
         {
@@ -36,9 +37,9 @@ namespace VacancyParcer.Reporter.Helpers
             return data;
         }
 
-        private static IrisData[] GetIrisData()
+        private static Element[] GetIrisData()
         {
-            var queue = new Queue<IrisData>();
+            var queue = new Queue<Element>();
             using (var reader = new StreamReader(HttpContext.Current.Request.MapPath(@"~\App_Data\iris.data")))
             {
                 while(!reader.EndOfStream)
@@ -48,7 +49,7 @@ namespace VacancyParcer.Reporter.Helpers
                         .Select(el=>double.Parse(el, CultureInfo.GetCultureInfo("en-US")))
                         .ToArray();
                     var classType=elems.Last();
-                    queue.Enqueue(new IrisData(data,classType));
+                    queue.Enqueue(new Element{ ClassType=classType,Coordinates=data});
                 }
             }
             return queue.ToArray();

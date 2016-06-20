@@ -106,7 +106,7 @@ namespace VacancyParcer.Reporter.Models
             return result;
         }
 
-        public Point ConvertToPoint()
+        public Element ConvertToElement()
         {
             var coord = new double[9];
             coord[0] = Salary;
@@ -123,7 +123,7 @@ namespace VacancyParcer.Reporter.Models
                     coord[i] = 0;
             }
 
-            return new Point(coord);
+            return new Element {ClassType=Job,Coordinates=coord };
         }
     }
 }

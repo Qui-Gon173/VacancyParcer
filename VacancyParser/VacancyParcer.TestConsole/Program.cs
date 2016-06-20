@@ -152,145 +152,34 @@ namespace VacancyParcer.TestConsole
 
         static void Main(string[] args)
         {
-
-            var list = new List<double[]>();
-
-            /*PageLoader iloader = ItMozgLoader.Instance;
-            iloader.Logger = new PoolLogger("i/i_debug.txt", "i/i_info.txt", "i/i_error.txt");
-
-            iloader.WaitTime = 250;
-            LoadData(iloader,"i_data_lastLoad.txt");
-            iloader.Logger.ForceSave();*/
-
-            var serial = new System.Xml.Serialization.XmlSerializer(typeof(VacancyData[]));
-            VacancyData[] data = null;
-
-
-            using (var reader = new StreamReader("i_data_format.txt"))
+            var link = @"D:\Work\Custom\VacancyParcer\VacancyParser\VacancyParcer.Reporter\App_Data\iris.data";
+            var list = new List<Element>();
+            using(var reader=new StreamReader(link))
             {
-                data = (VacancyData[])serial.Deserialize(reader);
-            }
-
-            var convertedValues = data.Select(Vacancy.FromVacancyData).ToArray();
-            var group = convertedValues.Where(el => el.Salary != 0)
-                    .GroupBy(SalaryGroup.SalaryGrouping)
-                    .OrderBy(el => el.Key).ToArray();
-            using (var x = new StreamWriter("LTR.csv", false, Encoding.UTF8))
-            {
-                foreach (var gr in group)
+                while (!reader.EndOfStream)
                 {
-                    x.WriteLine("{0};",gr.Key);
-                    var techGr = gr.Where(el => el.Skils.Contains("Javascript/JScript"))
-                        .GroupBy(el => el.Location)
-                        .OrderByDescending(el => el.Count())
-                        .Take(10);
-                    foreach (var grt in techGr)
-                        x.WriteLine("{0};{1};", grt.Key, grt.Count());
-                    x.WriteLine();
-
-                    var techtemp = gr.Where(el => el.Skils.Contains("Javascript/JScript"))
-                        .GroupBy(el => new DateTime(el.Date.Year,el.Date.Month,1))
-                        .OrderByDescending(el => el.Key)
-                        .Take(10);
-                    foreach (var grt in techtemp)
-                        x.WriteLine("{0:MMMM yyyy};{1};", grt.Key, grt.Count());
-                    x.WriteLine("\n");
-                    
+                    var elems = reader.ReadLine().Split(',');
+                    var coordinates = elems.Take(elems.Length - 1)
+                        .Select(el => double.Parse(el, System.Globalization.CultureInfo.GetCultureInfo("en-US")))
+                        .ToArray();
+                    var classType = elems.Last();
+                    list.Add(new Element { Coordinates = coordinates, ClassType = classType });
                 }
             }
-            /*using (var x = new StreamWriter("MMA.csv", false, Encoding.UTF8))
-            {
-                foreach(var gr in group)
-                {
-                    x.WriteLine("{0};{1};{2};{3}", gr.Key, gr.Max(el => el.Salary), gr.Min(el => el.Salary), gr.Average(el => el.Salary));
-                }
-            }
-
-            using(var wrt=new StreamWriter("TotalReport.csv",false,Encoding.UTF8))
-            {
-                
-                foreach(var el in group)
-                {
-                    wrt.WriteLine("{0};{1};",el.Key,el.Count());
-                }
-                wrt.WriteLine(";;");
-                foreach(var gr in group)
-                {
-                    wrt.WriteLine("{0};;", gr.Key);
-                    var dict = new Dictionary<string, int>();
-                    foreach(var el in gr)
-                    {
-                        var sckils = el.Skils.Split(new[] { ' ', ':', ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach(var sc in sckils)
-                        {
-                            if (dict.ContainsKey(sc))
-                                dict[sc]++;
-                            else
-                                dict.Add(sc, 1);
-                        }
-                    }
-                    foreach(var el in dict.OrderByDescending(el=>el.Value).Take(20))
-                    {
-                        wrt.WriteLine("{0};{1};", el.Key,el.Value);
-                    }
-                    wrt.WriteLine(";;");
-                }
-            }*/
-
-            /*
-            Func<VacancyData, DateTime> groupFun = el =>
-            {
-                var date = DateTime.Parse(el.Date);
-                if (date > DateTime.Now)
-                    date = date.AddYears(-1);
-                return date.AddDays(-date.Day + 1);
-            };
-            var stat = allVacancy.Where(el => !string.IsNullOrEmpty(el.Date))
-                .GroupBy(groupFun)
-                .OrderBy(el=>el.Key);
-
-            using (var whiter = new StreamWriter("infoData7.csv", false, Encoding.UTF8))
-            {
-
-                whiter.WriteLine("Date;Count;");
-
-                foreach (var group in stat)
-                {
-                    var datas = group.Select(el => double.Parse(el.Salary));
-                    whiter.WriteLine("{0:MMMM yyyy};{1};", group.Key, group.Count());
-                }
-                whiter.WriteLine();
-            }*/
-
-
-            //"—"
-            /*foreach (var el in allVacancy)
-            {
-                el.Location = XElement.Parse(el.Location).Value;
-                el.Salary = XElement.Parse(el.Salary)
-                    .Value
-                    .Replace("руб.", "")
-                    .Replace(" ", "")
-                    .Trim();
-                el.Experiance = XElement.Parse(el.Experiance).Value;
-                var tecn = el.Skils
-                    .Trim()
-                    .Replace("\r", " ")
-                    .Replace("\n", " ")
-                    .Replace("\t", " ");
-                while(tecn.Contains("  "))
-                    tecn=tecn.Replace("  ", " ");
-                el.Skils = tecn;
-            }*/
-            /*using(var writer=new StreamWriter("Jobs.csv",false,Encoding.UTF8))
-            {
-                var forInput = data.SelectMany(el => el.Job.ToLower()
-                    .Split(new[] { ':', ' ', ',','/' }, StringSplitOptions.RemoveEmptyEntries))
-                    .GroupBy(el=>el).OrderByDescending(el=>el.Count()).ToArray();
-                foreach (var el in forInput)
-                    writer.WriteLine("{0};", el.Key);
-            }*/
-
+            var data = list.ToArray();
+            var countsOfClasses = data.GroupBy(el => el.ClassType).ToDictionary(el => el.Key, el => el.Count());
+            var dataForStuding = (from d in data
+                                  group d by d.ClassType into dg
+                                  from dgp in dg.Take(countsOfClasses[dg.Key] / 2)
+                                  select dgp).ToArray();
+            var dataForClassing = data.Except(dataForStuding).ToArray();
+            var web = new KohonenWebSecond(10000, 50, 50, 4);
+            web.StudyElements = dataForStuding;
+            web.Train();
+            var classifiedData = dataForClassing.Select(el => new { data = el, classType = web.BestInStudyArray(el).ClassType })
+                .ToArray();
+            var wrongData = classifiedData.Where(el => el.data.ClassType != el.classType);
+            Console.ReadKey();
         }
 
         static void vMain(string[] args)

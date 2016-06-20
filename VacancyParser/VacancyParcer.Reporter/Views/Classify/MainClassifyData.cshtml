@@ -1,9 +1,8 @@
-﻿@model PaginationList<Tuple<int, Vacancy>>
+﻿@model PaginationList<Tuple<string, Vacancy>>
 @{
     ViewBag.Title = "Классифицированные данные";
     var form = new Vacancy();
     var professions = VacancyParcer.Reporter.Models.Vacancy.Professions;
-    var clustersName = Session["mainClusterName"] as Dictionary<string, int>; 
 }
 <h2>Классифицированные данные</h2>
 <div>
@@ -40,7 +39,7 @@
         <tbody>
             @foreach (var el in Model)
             {
-                <tr class="@(clustersName.ContainsKey(el.Item2.Job) && clustersName[el.Item2.Job] == el.Item1 ? "green" : "red")">
+                <tr class="@(el.Item1 == el.Item2.Job ? "green" : "red")">
                     <td>@el.Item2.Salary</td>
                     <td>@el.Item2.Experiance</td>
                     <td class="col-md-2">

@@ -25,7 +25,7 @@
                     @Html.Label("cityCount", "Количество городов:")
                     @Html.TextBox("cityCount", null, new { @class = "form-control", placeholder = "Введите число" })
                 </div>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Составить</button>
+                <button id="notReport" class="btn btn-lg btn-primary btn-block" type="submit">Составить</button>
                 <button id="setReport" class="btn btn-lg btn-primary btn-block" type="submit">Скачать PDF</button>
             }
         </div>
@@ -35,6 +35,9 @@
     $().ready(function () {
         $('#setReport').click(function () {
             $('#report').val(true);
+        });
+        $('#notReport').click(function () {
+            $('#report').val(false);
         });
     });
 </script>

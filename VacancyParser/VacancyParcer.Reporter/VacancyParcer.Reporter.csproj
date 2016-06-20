@@ -145,7 +145,6 @@
     <Compile Include="Models\AnalisisInfo.cs" />
     <Compile Include="Models\AnalisisViewModel.cs" />
     <Compile Include="Models\ClusterViewModel.cs" />
-    <Compile Include="Models\IrisData.cs" />
     <Compile Include="Models\ModelFilter.cs" />
     <Compile Include="Models\PaginationList.cs" />
     <Compile Include="Models\Vacancy.cs" />

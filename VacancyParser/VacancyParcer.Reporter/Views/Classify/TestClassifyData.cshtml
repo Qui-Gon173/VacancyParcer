@@ -1,4 +1,6 @@
-﻿@model PaginationList<Tuple<int, IrisData>>
+﻿@model PaginationList<Tuple<string, Element>>
+@using VacancyParcer.ClusterLibs;
+
 @{
     ViewBag.Title = "Классифицированные данные";
     var clastDict = Session["testClusterName"];
@@ -31,16 +33,16 @@
         <tbody>
             @foreach (var el in Model)
             {
-                <tr class="@(el.Item2.ClassIndex==el.Item1?"green":"red")">
-                    @foreach (var d in el.Item2.Data)
+                <tr class="@(el.Item2.ClassType==el.Item1?"green":"red")">
+                    @foreach (var d in el.Item2.Coordinates)
                     {
                         <td>@d</td>
                     }
-                    <td>@string.Format("{0}({1})", el.Item2.ClassName, el.Item2.ClassIndex)</td>
+                    <td>@el.Item2.ClassType</td>
                     <td>@el.Item1</td>
                 </tr>
             }
         </tbody>
     </table>
-    @Html.Pagination(Url, Model)
+    @(Html.Pagination<Tuple<string, Element>>(Url, Model))
 </div>
