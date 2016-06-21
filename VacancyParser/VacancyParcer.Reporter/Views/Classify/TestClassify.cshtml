@@ -1,0 +1,34 @@
+﻿@{
+    ViewBag.Title = "Подготовка";
+}
+
+<h2>Подготовка данных IRIS</h2>
+<div style="padding:18% 0">
+    @using (Html.BeginForm(null, null, FormMethod.Post)) { }
+
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped active" style="width:0%"></div>
+    </div>
+    <div id="status" style="text-align:center">
+        
+    </div>
+</div>
+<script>
+    $().ready(function () {
+        var $progress = $('.progress-bar');
+        var $status = $('#status');
+
+        var timerId = setInterval(function () {
+            $.post('@Url.Action("GetStatus", new {isTest=true})',
+            function (data) {
+                $progress.width(data.progress + '%');
+                $status.html(data.status + '(' + data.progress + '%)');
+                if (data.finished) {
+                    clearInterval(timerId);
+                    $('form').submit();
+                }
+            }
+        );
+        }, 100);
+    });
+</script>

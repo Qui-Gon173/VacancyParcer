@@ -144,9 +144,11 @@
     <Compile Include="Helpers\SalaryGroup.cs" />
     <Compile Include="Models\AnalisisInfo.cs" />
     <Compile Include="Models\AnalisisViewModel.cs" />
+    <Compile Include="Models\AnotherThread.cs" />
     <Compile Include="Models\ClusterViewModel.cs" />
     <Compile Include="Models\ModelFilter.cs" />
     <Compile Include="Models\PaginationList.cs" />
+    <Compile Include="Models\Tutuple.cs" />
     <Compile Include="Models\Vacancy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -213,6 +215,8 @@
     <Content Include="Views\Classify\MainFullData.cshtml" />
     <Content Include="Views\Classify\MainDataForStudy.cshtml" />
     <Content Include="Views\Classify\MainClassifyData.cshtml" />
+    <Content Include="Views\Classify\TestClassify.cshtml" />
+    <Content Include="Views\Classify\MainClassify.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -15,21 +15,21 @@ namespace VacancyParcer.Reporter.Helpers
     {
         static DataCollector()
         {
-            VacancyData = new Lazy<IEnumerable<VacancyData>>(GetData);
-            ConvertedVacancyData = new Lazy<IEnumerable<Vacancy>>(() =>
-                VacancyData.Value.Select(Vacancy.FromVacancyData)
+            VacancyData = new Lazy<VacancyData[]>(GetData);
+            ConvertedVacancyData = new Lazy<Vacancy[]>(() =>
+                VacancyData.Value.Select(Vacancy.FromVacancyData).ToArray()
             );
             IrisArray = new Lazy<Element[]>(GetIrisData);
         }
 
-        public static Lazy<IEnumerable<VacancyData>> VacancyData { get; private set; }
-        public static Lazy<IEnumerable<Vacancy>> ConvertedVacancyData { get; private set; }
+        public static Lazy<VacancyData[]> VacancyData { get; private set; }
+        public static Lazy<Vacancy[]> ConvertedVacancyData { get; private set; }
         public static Lazy<Element[]> IrisArray { get; private set; }
 
         private static VacancyData[] GetData()
         {
             VacancyData[] data;
-            using (var reader = new StreamReader(HttpContext.Current.Request.MapPath(@"~\App_Data\mainData.xml")))
+            using (var reader = new StreamReader(@"D:\Work\Custom\VacancyParcer\VacancyParser\VacancyParcer.Reporter\App_Data\mainData.xml"))
             {
                 var serial = new XmlSerializer(typeof(VacancyData[]));
                 data = (VacancyData[])serial.Deserialize(reader);
@@ -40,7 +40,7 @@ namespace VacancyParcer.Reporter.Helpers
         private static Element[] GetIrisData()
         {
             var queue = new Queue<Element>();
-            using (var reader = new StreamReader(HttpContext.Current.Request.MapPath(@"~\App_Data\iris.data")))
+            using (var reader = new StreamReader(@"D:\Work\Custom\VacancyParcer\VacancyParser\VacancyParcer.Reporter\App_Data\iris.data"))
             {
                 while(!reader.EndOfStream)
                 {

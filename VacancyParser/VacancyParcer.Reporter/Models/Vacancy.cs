@@ -40,7 +40,7 @@ namespace VacancyParcer.Reporter.Models
         static Vacancy()
         {
             SkillKeyWords = new Dictionary<string, int>();
-            using (var reader = new System.IO.StreamReader(HttpContext.Current.Request.MapPath(@"~\App_Data\skils.csv")))
+            using (var reader = new System.IO.StreamReader(@"D:\Work\Custom\VacancyParcer\VacancyParser\VacancyParcer.Reporter\App_Data\skils.csv"))
             {
                 while (!reader.EndOfStream)
                 {

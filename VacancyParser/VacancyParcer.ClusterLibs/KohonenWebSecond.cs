@@ -57,7 +57,8 @@ namespace VacancyParcer.ClusterLibs
 
         double _learningStep;
         int _iterationsCount;
-
+        public int TotalCount { get { return _iterationsCount; } }
+        public event Action<int> CurrectIteration;
 
         //--- метод инициализации сети
         public KohonenWebSecond(int iterations, int xcells, int ycells,int vectorSize)
@@ -145,6 +146,8 @@ namespace VacancyParcer.ClusterLibs
                 learning_rate = _learningStep * Math.Exp(-1.0 * iter / _iterationsCount);
                 //--- увеличиваем счетчик итераций
                 iter++;
+                if (CurrectIteration != null)
+                    CurrectIteration(iter);
                 //--- для удобства, покажем текущее состояние сети
                 //--- будем показывать состояние после каждой N-й итерации
 
